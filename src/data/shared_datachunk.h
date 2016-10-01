@@ -1,13 +1,13 @@
-#ifndef _qk_data_shared_dataset_H
-#define _qk_data_shared_dataset_H
+#ifndef _qk_data_shared_datachunk_H
+#define _qk_data_shared_datachunk_H
 
 // STL includes
 #include <string>
 
 // QK includes
-#include "lib/qkrange.h"
-#include "lib/qkindexer.h"
-#include "lib/qkindexerinterface.h"
+#include "lib/indexer.h"
+#include "lib/indexer_interface.h"
+#include "lib/range.h"
 #include "data/datachunk.h"
 
 namespace qk
@@ -43,4 +43,4 @@ private:
 }
 }
 
-#endif // _qk_data_shared_dataset_H
+#endif // _qk_data_shared_datachunk_H

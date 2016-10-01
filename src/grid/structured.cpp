@@ -1,9 +1,12 @@
 #include "structured.h"
+
+// STL includes
 #include <fstream>
 #include <cmath>
 
 // QK includes
-#include "lib/qkfunctions.h"
+#include "lib/functions.h"
+#include "lib/exception.h"
 
 #define DIM_CHECK
 #define INDEX_CHECK
@@ -58,16 +61,14 @@ structured::apply_bias_symmetric(const int dim, const double pow)
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::structured::apply_bias_symmetric : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::apply_bias_symmetric : Requested dimension out of range.");
     }
 #endif
     const int L = width(dim)/2.;
     const int N = length(dim);
 
     if(N %2 == 1){
-        std::cout << "qk::grid::structured::apply_bias_symmetric : Can only bias even grids\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::apply_bias_symmetric : Can only bias even grids.");
     }
 
     const int n = N/2;
@@ -87,8 +88,7 @@ structured::apply_bias_linear(const int dim, const double pow)
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::structured::apply_bias_symmetric : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::apply_bias_linear : Requested dimension out of range.");
     }
 #endif
     const int L = width(dim);
@@ -109,14 +109,12 @@ structured::centroid(const int dim, const int index) const
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::structured::centroid : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::centroid : Requested dimension out of range.");
     }
 #endif
 #ifdef INDEX_CHECK
     if(index >= upper(dim) || index < lower(dim)){
-        std::cout << "qk::grid::structured::centroid : Requested index outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::centroid : Requested index out of range.");
     }
 #endif
     return _xcs[dim][index];
@@ -127,14 +125,12 @@ structured::dx(const int dim, const int index) const
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::structured::dx : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::dx : Requested dimension out of range.");
     }
 #endif
 #ifdef INDEX_CHECK
     if(index >= upper(dim) || index < lower(dim)){
-        std::cout << "qk::grid::structured::dx : Requested index outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::dx : Requested index out of range.");
     }
 #endif
     return _dxs[dim][index];
@@ -145,8 +141,7 @@ structured::recalculate_xcs(const int dim)
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::structured::recalculate_xcs : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::structured::recalculate_xcs : Requested dimension out of range.");
     }
 #endif
     const int N = length(dim);

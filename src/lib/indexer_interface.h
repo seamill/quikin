@@ -1,9 +1,10 @@
-#ifndef QKINDEXERINTERFACE_H
-#define QKINDEXERINTERFACE_H
+#ifndef _qk_lib_indexer_interface_H
+#define _qk_lib_indexer_interface_H
 
-// QK incldues
-#include "lib/qkrange.h"
-#include "lib/qkindexer.h"
+// QK includes
+#include "lib/indexer.h"
+#include "lib/range.h"
+#include "lib/exception.h"
 
 namespace qk
 {
@@ -30,9 +31,7 @@ public:
     void swap(indexer_interface & interface)
     {
         if (this->range().volume() != interface.range().volume()) {
-            std::cout
-                    << "indexer_interface<T>::swap : ranges have different volume\n";
-            exit(EXIT_FAILURE);
+            throw qk::exception("qk::indexer_interface::swap : Volume mismatch.");
         }
         _data.swap(interface._data);
     }
@@ -41,9 +40,7 @@ public:
             const qk::range & from_range, const qk::range & to_range)
     {
         if (from_range.volume() != to_range.volume()) {
-            std::cout
-                    << "indexer_interface<T>::pull : ranges have different volume\n";
-            exit(EXIT_FAILURE);
+            throw qk::exception("qk::indexer_interface::pull : Volume mismatch.");
         }
 
         // TODO: this needs to be sped up
@@ -141,4 +138,4 @@ protected:
 
 }
 
-#endif // QKINDEXERINTERFACE_H
+#endif // _qk_lib_indexer_interface_H

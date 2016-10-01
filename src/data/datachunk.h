@@ -5,9 +5,9 @@
 #include <string>
 
 // QK includes
-#include "lib/qkrange.h"
-#include "lib/qkindexer.h"
-#include "lib/qkindexerinterface.h"
+#include "lib/indexer.h"
+#include "lib/indexer_interface.h"
+#include "lib/range.h"
 
 namespace qk
 {

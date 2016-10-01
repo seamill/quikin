@@ -1,5 +1,5 @@
-#ifndef range_H
-#define range_H
+#ifndef _qk_lib_range_H
+#define _qk_lib_range_H
 
 // STL includes
 #include <vector>
@@ -55,4 +55,4 @@ private:
 
 }
 
-#endif // range_H
+#endif // _qk_lib_range_H

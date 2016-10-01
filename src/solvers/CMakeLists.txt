@@ -1,9 +1,7 @@
 
 add_library(qk_solvers SHARED
-    qksolver_advection.cpp
-#    qksolver_boltzmannbgk_1d2v_shocktube_var.cpp
-#    qksolver_boltzmannbgk_1d2v_shocktube.cpp
-    qksolver.cpp
+    solver.cpp
+    advection.cpp
 )
     
 target_link_libraries(qk_solvers qk)

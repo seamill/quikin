@@ -3,7 +3,7 @@
 
 // QK includes
 #include <data/dataset.h>
-#include "solvers/qksolver.h"
+#include <solvers/solver.h>
 #include "grid/rectilinear.h"
 
 namespace qk

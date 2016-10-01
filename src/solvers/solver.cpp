@@ -1,4 +1,4 @@
-#include "qksolver.h"
+#include <solvers/solver.h>
 
 namespace qk
 {

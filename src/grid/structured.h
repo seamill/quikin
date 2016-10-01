@@ -2,8 +2,8 @@
 #define _qk_grid_structured_H
 
 // QK includes
+#include "lib/range.h"
 #include "grid/grid.h"
-#include "lib/qkrange.h"
 
 namespace qk
 {

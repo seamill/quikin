@@ -1,7 +1,6 @@
 
 add_library(qk SHARED
-    qkindexer.cpp
-    qkindexerinterface.cpp
-    qkrange.cpp
-    qkrangeset.cpp
+    indexer.cpp
+    range.cpp
+    range_set.cpp
 )

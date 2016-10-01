@@ -1,6 +1,3 @@
-#include "qksolver_advection.h"
-
-// STL includes
 #include <sstream>
 #include <fstream>
 #include <cmath>
@@ -11,10 +8,12 @@
 
 // Vectorization includes
 #include <immintrin.h>
+#include <lib/functions.h>
+#include <solvers/advection.h>
 
 // QK includes
+#include "lib/exception.h"
 #include "grid/rectilinear.h"
-#include "lib/qkfunctions.h"
 
 namespace qk
 {
@@ -203,8 +202,7 @@ advection::write_VTK(const std::string & prefix, const std::string & suffix) con
 
         std::ofstream file(filename.c_str());
         if(!file){
-            std::cout << "QKDatachunk::writeCSV : File " << filename << " could not be created\n";
-            exit(EXIT_FAILURE);
+            throw qk::exception("qk::solver:advection::write_VTK : File " + filename + " could not be created");
         }
 
         file << "# vtk DataFile Version 2.0\n";

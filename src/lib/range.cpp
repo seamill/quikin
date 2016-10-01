@@ -1,13 +1,11 @@
-#include "qkrange.h"
+#include "lib/range.h"
 
 // STL includes
 #include <cmath>
 #include <algorithm>
 
 // QK includes
-#include "lib/qkfunctions.h"
-
-// range
+#include "lib/functions.h"
 
 namespace qk
 {

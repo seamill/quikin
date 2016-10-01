@@ -1,8 +1,8 @@
-#ifndef QKINDEXER_H
-#define QKINDEXER_H
+#ifndef _qk_lib_indexer_H
+#define _qk_lib_indexer_H
 
 // QK incldues
-#include "lib/qkrange.h"
+#include "lib/range.h"
 
 namespace qk
 {
@@ -44,4 +44,4 @@ protected:
 
 }
 
-#endif // QKINDEXER_H
+#endif // _qk_lib_indexer_H

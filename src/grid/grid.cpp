@@ -1,9 +1,12 @@
 #include "grid.h"
+
+// STL includes
 #include <fstream>
 #include <cmath>
 
 // QK includes
-#include "lib/qkfunctions.h"
+#include "lib/functions.h"
+#include "lib/exception.h"
 
 #define DIM_CHECK
 #define INDEX_CHECK
@@ -49,8 +52,7 @@ grid::width(const int dim) const
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::grid::width : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::grid::width : Requested dimension out of range.");
     }
 #endif
     return _widths[dim];
@@ -62,8 +64,7 @@ grid::start(const int dim) const
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::grid::start : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::grid::start : Requested dimension out of range.");
     }
 #endif
     return _startxs[dim];

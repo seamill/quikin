@@ -1,13 +1,13 @@
-#ifndef _qk_data_extended_dataset_H
-#define _qk_data_extended_dataset_H
+#ifndef _qk_data_extended_datachunk_H
+#define _qk_data_extended_datachunk_H
 
 // STL includes
 #include <string>
 
 // QK includes
-#include "lib/qkrange.h"
-#include "lib/qkindexer.h"
-#include "lib/qkindexerinterface.h"
+#include "lib/indexer.h"
+#include "lib/indexer_interface.h"
+#include "lib/range.h"
 #include "data/datachunk.h"
 
 namespace qk
@@ -15,8 +15,7 @@ namespace qk
 namespace data
 {
 
-class extended_datachunk:
-        public datachunk
+class extended_datachunk: public datachunk
 {
 public:
 
@@ -27,9 +26,18 @@ public:
 
     static int num_ghost_layers();
 
-    const qk::range & internal_range() const {return _internal_range;}
-    const qk::range & lower_ghost_range(const int dim) const {return _lower_ranges[dim];}
-    const qk::range & upper_ghost_range(const int dim) const {return _upper_ranges[dim];}
+    const qk::range & internal_range() const
+    {
+        return _internal_range;
+    }
+    const qk::range & lower_ghost_range(const int dim) const
+    {
+        return _lower_ranges[dim];
+    }
+    const qk::range & upper_ghost_range(const int dim) const
+    {
+        return _upper_ranges[dim];
+    }
 
 protected:
 
@@ -43,4 +51,4 @@ protected:
 }
 }
 
-#endif // _qk_data_extended_dataset_H
+#endif // _qk_data_extended_datachunk_H

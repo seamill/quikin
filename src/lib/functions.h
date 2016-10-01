@@ -1,7 +1,7 @@
-#ifndef QKFUNCTIONS_H
-#define QKFUNCTIONS_H
+#ifndef _qk_lib_functions_H
+#define _qk_lib_functions_H
 
 #define SAFE_DELETE(p) if(p){delete p; p=NULL;}
 #define SAFE_DELETE_ARRAY(p) if(p){delete []p; p=NULL;}
 
-#endif // QKFUNCTIONS_H
+#endif // _qk_lib_functions_H

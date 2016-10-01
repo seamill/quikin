@@ -1,9 +1,12 @@
 #include "rectilinear.h"
+
+// STL includes
 #include <fstream>
 #include <cmath>
 
 // QK includes
-#include "lib/qkfunctions.h"
+#include "lib/functions.h"
+#include "lib/exception.h"
 
 #define DIM_CHECK
 #define INDEX_CHECK
@@ -39,14 +42,12 @@ rectilinear::centroid(const int dim, const int index) const
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::rectilinear::centroid : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::rectilinear::centroid : Requested dimension out of range.");
     }
 #endif
 #ifdef INDEX_CHECK
     if(index >= upper(dim) || index < lower(dim)){
-        std::cout << "qk::grid::rectilinear::centroid : Requested index outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::rectilinear::centroid : Requested index out of range.");
     }
 #endif
     return _startxs[dim] + (index+0.5)*_dxs[dim];
@@ -57,8 +58,7 @@ rectilinear::dx(const int dim) const
 {
 #ifdef DIM_CHECK
     if(dim >= num_dims() || dim < 0){
-        std::cout << "qk::grid::rectilinear::dx : Requested dimension outside available\n";
-        exit(EXIT_FAILURE);
+        throw qk::exception("qk::grid::rectilinear::dx : Requested dimension out of range.");
     }
 #endif
     return _dxs[dim];

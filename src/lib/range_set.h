@@ -1,9 +1,9 @@
-#ifndef QKRANGESET_H
-#define QKRANGESET_H
+#ifndef _qk_lib_range_set_H
+#define _qk_lib_range_set_H
 
 // QK includes
-#include "lib/qkrange.h"
-#include "lib/qkindexerinterface.h"
+#include "lib/indexer_interface.h"
+#include "lib/range.h"
 
 namespace qk
 {
@@ -26,4 +26,4 @@ private:
 
 }
 
-#endif // QKRANGESET_H
+#endif // _qk_lib_range_set_H

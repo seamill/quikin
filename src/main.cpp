@@ -1,5 +1,7 @@
 #include <data/dataset.h>
 #include <grid/grid.h>
+#include <solvers/advection.h>
+#include <solvers/solver.h>
 #include <iostream>
 
 // STL includes
@@ -10,8 +12,7 @@
 #include <sstream>
 
 // QK include
-#include "solvers/qksolver.h"
-#include "solvers/qksolver_advection.h"
+#include "lib/exception.h"
 
 int advection_test()
 {
@@ -22,7 +23,7 @@ int advection_test()
     const int num_steps_per_frame = 10;
     const double time_end = 5.0;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
-    const std::string work_directory = "/home/smiller/localStorage/kinetic/quikin/data";
+    const std::string work_directory = "/home/smiller/local_storage/quikin/data";
 
     // Find a better dt
 
@@ -85,5 +86,10 @@ int advection_test()
 
 int main()
 {
-    return advection_test();
+    try{
+        advection_test();
+    } catch (qk::exception & qke){
+        std::cout << "*** quikin exception caught ***\n" << qke.what();
+        exit(EXIT_FAILURE);
+    }
 }
