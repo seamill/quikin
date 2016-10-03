@@ -80,6 +80,20 @@ range::setup(const int num_dims, const int *lower, const int *upper)
 }
 
 void
+range::extrude(const int lower_extrude, const int upper_extrude)
+{
+    int num_dims = this->num_dims();
+    std::vector<int> lower(num_dims,0), upper(num_dims,0);
+    for(int i=0;i<num_dims-1;i++){
+        lower[i] = this->lower(i);
+        upper[i] = this->upper(i);
+    }
+    lower[num_dims-1] = lower_extrude;
+    upper[num_dims-1] = upper_extrude;
+    this->setup(num_dims,lower.data(), upper.data());
+}
+
+void
 range::expand(const int dim, const int lowerExpand, const int upperExpand)
 {
     set(dim, _lower[dim]+lowerExpand, _upper[dim]+upperExpand);

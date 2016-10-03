@@ -24,6 +24,7 @@ public:
     virtual void resize(const range & range);
     virtual void resize(const int numDims, const int *lower, const int *upper);
 
+    void extrude(const int lower_extrude, const int upper_extrude);
     void expand(const int dim, const int lowerExpand, const int upperExpand);
     void shift(const int dim, const int shift);
 

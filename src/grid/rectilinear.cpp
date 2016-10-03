@@ -37,6 +37,14 @@ rectilinear::~rectilinear()
 
 }
 
+void
+rectilinear::xc(const qk::indexer & idx, double * x) const
+{
+    for(int i=0;i<this->num_dims();i++){
+        x[i] = _startxs[i] + (idx.index(i)+0.5)*_dxs[i];
+    }
+}
+
 double
 rectilinear::centroid(const int dim, const int index) const
 {

@@ -23,6 +23,11 @@ public:
     void apply_bias_symmetric(const int dim, const double pow);
     void apply_bias_linear(const int dim, const double pow);
 
+    void xc(const qk::indexer & idx, double * x) const
+    {
+
+    }
+
     double centroid(const int dim, const int index) const;
     double dx(const int dim, const int index) const;
 

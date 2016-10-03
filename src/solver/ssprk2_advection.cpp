@@ -1,3 +1,6 @@
+#include "ssprk2_advection.h"
+
+// STL include
 #include <sstream>
 #include <fstream>
 #include <cmath>
@@ -6,12 +9,7 @@
 #include <iostream>
 #include <stdlib.h>
 
-// Vectorization includes
-#include <immintrin.h>
-#include <lib/functions.h>
-#include <solvers/advection.h>
-
-// QK includes
+#include "lib/functions.h"
 #include "lib/exception.h"
 #include "grid/rectilinear.h"
 
@@ -112,109 +110,89 @@ namespace advection_solver{
 }
 
 
-advection::advection()
+ssprk2_advection::ssprk2_advection()
 {
 
 }
 
-advection::~advection()
+ssprk2_advection::~ssprk2_advection()
 {
 
 }
 
 void
-advection::setup(const qk::grid::rectilinear & grid, const double *velocity)
+ssprk2_advection::setup(const std::vector<double> & velocity)
 {
-    _grid = grid;
-
-    const int numDims = grid.num_dims();
-    _velocity.resize(numDims,0.0);
-    for(int i = 0; i < numDims; i++){
-        _velocity[i] = velocity[i];
-    }
-
-    _n.resize(grid);
-    _ns.resize(grid);
-    _np.resize(grid);
+    _velocity = velocity;
+//    _grid = grid;
+//
+//    const int numDims = grid.num_dims();
+//    _velocity.resize(numDims,0.0);
+//    for(int i = 0; i < numDims; i++){
+//        _velocity[i] = velocity[i];
+//    }
 
     // Now we initialize a gaussian in n
-
-    const double dx[3] = {grid.dx(0), grid.dx(1), grid.dx(2)};
-    const double xmin[3] = {grid.start(0), grid.start(1), grid.start(2)};
-    const double xc[3] = {0., 0., 0.};
-    const double sqrt2stdv = 0.2;
-
-    double xs[3];
-    double exponent;
-
-
-    for(qk::indexer chunkIndexer = _n.indexer(); chunkIndexer.exists(); chunkIndexer.next()){
-        qk::data::extended_datachunk & data = _n[chunkIndexer];
-        for(qk::indexer indexer = data.indexer(); indexer.exists(); indexer.next()){
-            xs[0] = (xmin[0] + dx[0] * indexer[0] - xc[0]) / sqrt2stdv;
-            xs[1] = (xmin[1] + dx[1] * indexer[1] - xc[1]) / sqrt2stdv;
-            xs[2] = (xmin[2] + dx[2] * indexer[2] - xc[2]) / sqrt2stdv;
-
-            exponent = xs[0]*xs[0]+xs[1]*xs[1]+xs[2]*xs[2];
-
-            data[indexer] = std::exp(-exponent);
-        }
-    }
+//
+//    const double dx[3] = {grid.dx(0), grid.dx(1), grid.dx(2)};
+//    const double xmin[3] = {grid.start(0), grid.start(1), grid.start(2)};
+//    const double xc[3] = {0., 0., 0.};
+//    const double sqrt2stdv = 0.2;
+//
+//    double xs[3];
+//    double exponent;
+//
+//
+//    for(qk::indexer chunkIndexer = _n.indexer(); chunkIndexer.exists(); chunkIndexer.next()){
+//        qk::data::extended_datachunk & data = _n[chunkIndexer];
+//        for(qk::indexer indexer = data.indexer(); indexer.exists(); indexer.next()){
+//            xs[0] = (xmin[0] + dx[0] * indexer[0] - xc[0]) / sqrt2stdv;
+//            xs[1] = (xmin[1] + dx[1] * indexer[1] - xc[1]) / sqrt2stdv;
+//            xs[2] = (xmin[2] + dx[2] * indexer[2] - xc[2]) / sqrt2stdv;
+//
+//            exponent = xs[0]*xs[0]+xs[1]*xs[1]+xs[2]*xs[2];
+//
+//            data[indexer] = std::exp(-exponent);
+//        }
+//    }
 }
 
 void
-advection::advance(const double time, const double dt)
+ssprk2_advection::solve(const double time, qk::variable::variable_manager & variable_manager) const
 {
 
-    // Iterate through the domains in n
-    for(qk::indexer indexer = _np.indexer(); indexer.exists(); indexer.next()){
-
-        advection_solver::advection(
-                    _grid,
-                    _n[indexer].range(),
-                    dt,
-                    _velocity,
-                    _n[indexer].data(),
-                    _ns[indexer].data(),
-                    _np[indexer].data()
-                    );
-
-        _n[indexer].swap(_np[indexer]);
-
-    }
 }
 
-void
-advection::write_VTK(const std::string & prefix, const std::string & suffix) const
-{
+//void
+//advection::rhs(const double time, const const_datachunk_map & inputs, const datachunk_map & outputs) const
+//{
+//
+//    const std::string & input_variable_name = _input_variable_names[0];
+//    const std::string & output_variable_name = _output_variable_names[0];
+//
+//    const auto & input_itr = inputs.find(input_variable_name);
+//    const auto & output_itr = outputs.find(output_variable_name);
+//
+//    if(input_itr == inputs.end()){
+//        throw qk::exception("qk::spatial_solver::advection::solve : Input variable '"+input_variable_name+"' not found.");
+//    }
+//
+//    if(output_itr == outputs.end()){
+//        throw qk::exception("qk::spatial_solver::advection::solve : Output variable '"+output_variable_name+"' not found.");
+//    }
+//
+////    advection_solver::advection(
+////                _grid,
+////                _n[indexer].range(),
+////                dt,
+////                _velocity,
+////                _n[indexer].data(),
+////                _ns[indexer].data(),
+////                _np[indexer].data()
+////                );
+//
+//}
 
-    // Iterate through the domains in n
-    for(qk::indexer indexer = _n.indexer(); indexer.exists(); indexer.next()){
-        const qk::data::extended_datachunk & chunk = _n[indexer];
-        const qk::range & range = chunk.internal_range();
-
-        // Generate Filename
-
-        // TODO: Add range information
-        std::string rangeInfo = "";
-
-        std::string filename = prefix + rangeInfo + suffix;
-
-        std::ofstream file(filename.c_str());
-        if(!file){
-            throw qk::exception("qk::solver:advection::write_VTK : File " + filename + " could not be created");
-        }
-
-        file << "# vtk DataFile Version 2.0\n";
-        file << "Stuff for dataset\n";
-        file << "ASCII\n";
-
-        //_grid.writeVTK(file, range);
-        chunk.write_VTK(file, range);
-
-    }
-
-}
 
 }
 }

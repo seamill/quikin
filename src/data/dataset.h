@@ -10,6 +10,7 @@
 #include "lib/range.h"
 #include "data/extended_datachunk.h"
 #include "data/shared_datachunk.h"
+#include "basis/basis.h"
 
 namespace qk
 {
@@ -22,27 +23,19 @@ class dataset:
 public:
 
     dataset();
-    dataset(const qk::range & global_data_range);
+    dataset(const qk::range & global_data_range, const qk::basis::basis & basis);
     ~dataset();
-
-    void resize(const qk::range & global_data_range);
 
     void sync();
 
-//    void applyFunction( double (*func)(const QKIndexer & index) );
-
-    //void writeVTK(const std::string & filename) const;
-
-    //void clear();
-
 protected:
 
+    void resize(const qk::range & global_data_range, const qk::basis::basis & basis);
+
+    qk::basis::basis _basis;
     qk::range _data_range_global;
     qk::range _data_range_local;
     qk::range _chunk_range_local;
-
-    std::vector<shared_datachunk> _lower_chunks;
-    std::vector<shared_datachunk> _upper_chunks;
 
 };
 

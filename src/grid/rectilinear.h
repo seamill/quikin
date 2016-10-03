@@ -15,10 +15,11 @@ class rectilinear: public grid
 public:
 
     rectilinear();
-    rectilinear(const range & range, const double *startxs,
-            const double *widths);
+    rectilinear(const range & range, const double *startxs, const double *widths);
 
     ~rectilinear();
+
+    void xc(const qk::indexer & idx, double * x) const;
 
     double centroid(const int dim, const int index) const;
 

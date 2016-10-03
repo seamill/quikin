@@ -20,6 +20,8 @@ public:
     void increment(const int dim);
     void decrement(const int dim);
 
+    int index(const int dim) const;
+
     void next();
     bool exists() const;
 
