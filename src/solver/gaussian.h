@@ -20,7 +20,7 @@ public:
     void setup(const double amplitude, const std::vector<double> & average, const double standard_deviation);
 
     void
-    solve(const double time, qk::variable::variable_manager & variable_manager) const;
+    solve(qk::variable::variable_manager & variable_manager, const int tag = 0) const;
 
 protected:
 

@@ -23,7 +23,7 @@ structured::structured():
 
 }
 
-structured::structured(const range & range, const double *startxs, const double *widths):
+structured::structured(const qk::range & range, const double *startxs, const double *widths):
 		qk::grid::grid(range,startxs,widths)
 {
     _dxs.resize(num_dims());

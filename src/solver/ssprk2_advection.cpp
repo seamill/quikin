@@ -9,9 +9,13 @@
 #include <iostream>
 #include <stdlib.h>
 
+// QK includes
 #include "lib/functions.h"
 #include "lib/exception.h"
 #include "grid/rectilinear.h"
+#include "variable/variable_id.h"
+#include "variable/variable.h"
+#include "data/functions.h"
 
 namespace qk
 {
@@ -25,8 +29,8 @@ namespace advection_solver{
 
         // Let compiler know of alignment
         // double is 8 bytes - AVX vectorizes 4 doubles -> 32 byte alignment required
-        const double * __restrict__ a = (const double *) __builtin_assume_aligned((const void *) n, 32);
-        double * __restrict__ b = (double *) __builtin_assume_aligned((void *) np, 32);
+        const double * __restrict__ a = n;//(const double *) __builtin_assume_aligned((const void *) n, 32);
+        double * __restrict__ b = np;//(double *) __builtin_assume_aligned((void *) np, 32);
 
         // Iterate - should autovectorize
 #pragma omp parallel for
@@ -124,75 +128,111 @@ void
 ssprk2_advection::setup(const std::vector<double> & velocity)
 {
     _velocity = velocity;
-//    _grid = grid;
-//
-//    const int numDims = grid.num_dims();
-//    _velocity.resize(numDims,0.0);
-//    for(int i = 0; i < numDims; i++){
-//        _velocity[i] = velocity[i];
-//    }
-
-    // Now we initialize a gaussian in n
-//
-//    const double dx[3] = {grid.dx(0), grid.dx(1), grid.dx(2)};
-//    const double xmin[3] = {grid.start(0), grid.start(1), grid.start(2)};
-//    const double xc[3] = {0., 0., 0.};
-//    const double sqrt2stdv = 0.2;
-//
-//    double xs[3];
-//    double exponent;
-//
-//
-//    for(qk::indexer chunkIndexer = _n.indexer(); chunkIndexer.exists(); chunkIndexer.next()){
-//        qk::data::extended_datachunk & data = _n[chunkIndexer];
-//        for(qk::indexer indexer = data.indexer(); indexer.exists(); indexer.next()){
-//            xs[0] = (xmin[0] + dx[0] * indexer[0] - xc[0]) / sqrt2stdv;
-//            xs[1] = (xmin[1] + dx[1] * indexer[1] - xc[1]) / sqrt2stdv;
-//            xs[2] = (xmin[2] + dx[2] * indexer[2] - xc[2]) / sqrt2stdv;
-//
-//            exponent = xs[0]*xs[0]+xs[1]*xs[1]+xs[2]*xs[2];
-//
-//            data[indexer] = std::exp(-exponent);
-//        }
-//    }
 }
 
 void
-ssprk2_advection::solve(const double time, qk::variable::variable_manager & variable_manager) const
+ssprk2_advection::solve(qk::variable::variable_manager & variable_manager, const int tag) const
 {
+    if(_input_variable_ids.size() != 1){
+        throw qk::exception("qk::solver::ssprk2_advection::solve : Input must contain one variable.");
+    }
+
+    if(_output_variable_ids.size() != 2){
+        throw qk::exception("qk::solver::ssprk2_advection::solve : Output must contain two variables.");
+    }
+
+    const qk::grid::rectilinear & grid = dynamic_cast<const qk::grid::rectilinear &>(variable_manager.grid());
+
+    const double time = variable_manager.time();
+    const double dt = variable_manager.dt();
+
+    const qk::variable::variable_id & input_id = _input_variable_ids[0];
+    const qk::variable::variable & n_0 = variable_manager.input_variable(input_id);
+
+    const qk::variable::variable_id & partial_id = _output_variable_ids[0];
+    qk::variable::variable & n_1 = variable_manager.output_variable(partial_id);
+
+    const qk::variable::variable_id & output_id = _output_variable_ids[1];
+    qk::variable::variable & n_2 = variable_manager.output_variable(output_id);
+
+    if(tag == STAGE_0){
+        for(qk::indexer chunk_idx = n_0.indexer(); chunk_idx.exists(); chunk_idx.next()){
+            const qk::data::extended_datachunk & n_0_chunk = n_0[chunk_idx];
+            qk::data::extended_datachunk & n_1_chunk = n_1[chunk_idx];
+
+//            stage_0(dt, grid, n_0_chunk, n_1_chunk);
+
+            qk::data::extended_datachunk & n_2_chunk = n_2[chunk_idx];
+            stage_0(dt, grid, n_0_chunk, n_2_chunk);
+        }
+    } else if (tag == STAGE_1){
+
+        return;
+
+        for(qk::indexer chunk_idx = n_0.indexer(); chunk_idx.exists(); chunk_idx.next()){
+            const qk::data::extended_datachunk & n_0_chunk = n_0[chunk_idx];
+            const qk::data::extended_datachunk & n_1_chunk = n_1[chunk_idx];
+            qk::data::extended_datachunk & n_2_chunk = n_2[chunk_idx];
+
+            stage_1(dt, grid, n_0_chunk, n_1_chunk, n_2_chunk);
+        }
+    }
 
 }
 
-//void
-//advection::rhs(const double time, const const_datachunk_map & inputs, const datachunk_map & outputs) const
-//{
-//
-//    const std::string & input_variable_name = _input_variable_names[0];
-//    const std::string & output_variable_name = _output_variable_names[0];
-//
-//    const auto & input_itr = inputs.find(input_variable_name);
-//    const auto & output_itr = outputs.find(output_variable_name);
-//
-//    if(input_itr == inputs.end()){
-//        throw qk::exception("qk::spatial_solver::advection::solve : Input variable '"+input_variable_name+"' not found.");
-//    }
-//
-//    if(output_itr == outputs.end()){
-//        throw qk::exception("qk::spatial_solver::advection::solve : Output variable '"+output_variable_name+"' not found.");
-//    }
-//
-////    advection_solver::advection(
-////                _grid,
-////                _n[indexer].range(),
-////                dt,
-////                _velocity,
-////                _n[indexer].data(),
-////                _ns[indexer].data(),
-////                _np[indexer].data()
-////                );
-//
-//}
+void
+ssprk2_advection::stage_0(const double dt, const qk::grid::rectilinear & grid, const qk::data::extended_datachunk & n0, qk::data::extended_datachunk & n1) const
+{
+    const int num_dims = grid.num_dims();
+    int stride[num_dims];
+    for(int i = 0; i < num_dims; i++){
+        stride[i] = n0.range().stride(i);
+    }
 
+    const double * n = (const double *) n0.data();//__builtin_assume_aligned(n_data, 32);
+    double * ns = (double *) n1.data();//__builtin_assume_aligned(ns_data, 32);
+
+    // Initialize n1 with n0
+    qk::data::full_copy(n0,n1);
+
+    // Apply fluxes
+    for(int dim = 0; dim < num_dims; dim++){
+        const int offset = ((_velocity[dim] > 0) ? 1 : -1) * stride[dim];
+        const int start = std::max(0, n0.num_ghost_layers() * offset);
+        const int end = std::min(n0.volume(), n0.volume()-n0.num_ghost_layers()*offset);
+        advection_solver::advection_iterate(start, end, offset, dt * _velocity[dim] / grid.dx(dim), n, ns);
+    }
+}
+
+void
+ssprk2_advection::stage_1(const double dt, const qk::grid::rectilinear & grid, const qk::data::extended_datachunk & n0, const qk::data::extended_datachunk & n1, qk::data::extended_datachunk & n2) const
+{
+
+    const int num_dims = grid.num_dims();
+    const int volume = n0.volume();
+    int stride[num_dims];
+    for(int i = 0; i < num_dims; i++){
+        stride[i] = n0.range().stride(i);
+    }
+
+    const double * n = (const double *) n0.data();
+    const double * ns = (const double *) n1.data();
+    double * np = (double *) n2.data();
+
+    // Initialize np
+    for(int i = 0; i < volume; i++){
+        np[i] = 0.5*(n[i]+ns[i]);
+    }
+
+    // Apply fluxes
+    for(int dim = 0; dim < num_dims; dim++){
+        const int offset = ((_velocity[dim] > 0) ? 1 : -1) * stride[dim];
+        const int start = std::max(0, n0.num_ghost_layers() * offset);
+        const int end = std::min(volume, volume-n0.num_ghost_layers()*offset);
+        advection_solver::advection_iterate(start, end, offset, 0.5 * dt * _velocity[dim] / grid.dx(dim), ns, np);
+    }
+
+}
 
 }
 }

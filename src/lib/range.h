@@ -41,6 +41,26 @@ public:
 
     range & operator=(const range & range);
 
+    friend std::ostream &
+    operator<<(std::ostream & os, const qk::range & range)
+    {
+        os << "Range : lower [";
+        for(int i = 0; i < range.num_dims(); ++i){
+            os << range.lower(i);
+            if(i != range.num_dims()-1){
+                os << ", ";
+            }
+        }
+        os <<"], upper [";
+        for(int i = 0; i < range.num_dims(); ++i){
+            os << range.upper(i);
+            if(i != range.num_dims()-1){
+                os << ", ";
+            }
+        }
+        os<<"]";
+    }
+
 protected:
 
     void setup(const int numDims, const int *lower, const int *upper);

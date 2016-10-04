@@ -27,12 +27,13 @@ gaussian::setup(const double amplitude, const std::vector<double> & average, con
 {
     _amplitude = amplitude;
     _average = average;
+    _average.resize(3,0.);
     _standard_deviation = standard_deviation;
 
 }
 
 void
-gaussian::solve(const double time, qk::variable::variable_manager & variable_manager) const
+gaussian::solve(qk::variable::variable_manager & variable_manager, const int tag) const
 {
 
     const qk::grid::grid & grid = variable_manager.grid();

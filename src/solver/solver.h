@@ -40,6 +40,9 @@ public:
         _output_variable_ids = output_variable_ids;
     }
 
+    virtual void
+    solve(qk::variable::variable_manager & variable_manager, const int tag) const = 0;
+
 protected:
 
     std::vector<qk::variable::variable_id> _input_variable_ids;

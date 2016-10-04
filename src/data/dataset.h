@@ -23,19 +23,25 @@ class dataset:
 public:
 
     dataset();
-    dataset(const qk::range & global_data_range, const qk::basis::basis & basis);
+    dataset(const qk::range & global_data_range, const qk::basis::basis & basis, const int num_components);
     ~dataset();
 
     void sync();
 
+    const qk::basis::basis & basis() const {return _basis;}
+
 protected:
 
-    void resize(const qk::range & global_data_range, const qk::basis::basis & basis);
+    void resize(const qk::range & global_data_range, const qk::basis::basis & basis, const int num_components);
 
     qk::basis::basis _basis;
-    qk::range _data_range_global;
-    qk::range _data_range_local;
-    qk::range _chunk_range_local;
+    qk::range _data_range;
+    qk::range _mesh_range_global;
+    qk::range _mesh_range_local;
+    qk::range _chunk_range_global;
+
+private:
+    using qk::indexer_interface<extended_datachunk>::resize;
 
 };
 

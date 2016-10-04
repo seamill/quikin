@@ -26,6 +26,15 @@ public:
 
     void write_VTK(std::ofstream & file, const qk::range & range) const;
 
+    virtual void resize(const qk::range & mesh_range, const qk::range & data_range);
+
+private:
+
+    qk::range _mesh_range;
+    qk::range _data_range;
+
+    using qk::indexer_interface<double>::resize;
+
 };
 
 }

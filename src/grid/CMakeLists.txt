@@ -6,3 +6,4 @@ add_library(qk_grid SHARED
 )
 
 target_link_libraries(qk_grid qk)
+target_link_libraries(qk_grid qk_basis)

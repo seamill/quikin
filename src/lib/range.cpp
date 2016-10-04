@@ -44,7 +44,7 @@ range::~range()
 void
 range::resize(const range &range)
 {
-    setup(range._num_dims, &(range._lower[0]), &(range._upper[0]));
+    setup(range._num_dims, range._lower.data(), range._upper.data());
 }
 
 void
@@ -83,14 +83,14 @@ void
 range::extrude(const int lower_extrude, const int upper_extrude)
 {
     int num_dims = this->num_dims();
-    std::vector<int> lower(num_dims,0), upper(num_dims,0);
-    for(int i=0;i<num_dims-1;i++){
+    std::vector<int> lower(num_dims+1,0), upper(num_dims+1,0);
+    for(int i=0;i<num_dims;i++){
         lower[i] = this->lower(i);
         upper[i] = this->upper(i);
     }
-    lower[num_dims-1] = lower_extrude;
-    upper[num_dims-1] = upper_extrude;
-    this->setup(num_dims,lower.data(), upper.data());
+    lower[num_dims] = lower_extrude;
+    upper[num_dims] = upper_extrude;
+    this->setup(num_dims+1,lower.data(), upper.data());
 }
 
 void

@@ -30,6 +30,8 @@ public:
     const int & operator[](const int & dim) const;
     indexer & operator=(const indexer & idx);
 
+    indexer & operator++();
+
 protected:
 
     void recursive_increment_dim(const int & dim);

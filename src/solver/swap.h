@@ -18,7 +18,7 @@ public:
     ~swap();
 
     void
-    solve(const double time, qk::variable::variable_manager & variable_manager) const;
+    solve(qk::variable::variable_manager & variable_manager, const int tag=0) const;
 
 protected:
 

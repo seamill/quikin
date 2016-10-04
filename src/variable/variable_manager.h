@@ -37,7 +37,13 @@ public:
     }
 
     void
-    write_VTK(const std::string & prefix, const std::string & suffix, const std::vector<qk::variable::variable_id> & variables) const;
+    write_vtk(const std::string & prefix, const std::string & suffix, const std::vector<qk::variable::variable_id> & variables) const;
+
+    void set_time(const double time) {_time=time;}
+    void set_dt(const double dt) {_dt=dt;}
+
+    double time() const {return _time;}
+    double dt() const {return _dt;}
 
 protected:
 
@@ -46,6 +52,9 @@ protected:
 
     const qk::grid::grid & _grid;
     std::map<const qk::variable::variable_id, qk::variable::variable *> _variables;
+
+    double _dt;
+    double _time;
 
 };
 

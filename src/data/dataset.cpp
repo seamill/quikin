@@ -17,12 +17,12 @@ namespace data
 dataset::dataset():
     qk::indexer_interface<extended_datachunk>()
 {
-    resize(qk::range(),qk::basis::basis());
+    resize(qk::range(),qk::basis::basis(),1);
 }
 
-dataset::dataset(const qk::range & global_data_range, const qk::basis::basis & basis)
+dataset::dataset(const qk::range & global_data_range, const qk::basis::basis & basis, const int num_components)
 {
-    resize(global_data_range, basis);
+    resize(global_data_range, basis, num_components);
 }
 
 dataset::~dataset()
@@ -47,28 +47,32 @@ dataset::sync()
 }
 
 void
-dataset::resize(const qk::range & global_range, const qk::basis::basis & basis)
+dataset::resize(const qk::range & global_range, const qk::basis::basis & basis, const int num_components)
 {
     _basis = basis;
-    _data_range_global = global_range;
-    _data_range_global.extrude(0,basis.num_points());
+    _mesh_range_global = global_range;
+    _data_range = qk::range();
+    _data_range.extrude(0,basis.num_points());
+    _data_range.extrude(0,num_components);
 
-    if(_data_range_global.volume() > 0){
+    if(_mesh_range_global.volume() > 0){
 
         // For now this is a hack for a single process
 
         // Designate the local range belonging to this mpi rank
-        _data_range_local = _data_range_global;
+        _mesh_range_local = _mesh_range_global;
 
         // Construct an mpi chunk size - only one chunk per process
-        _chunk_range_local = _data_range_global;
-        for(int i = 0; i < _chunk_range_local.num_dims(); i++){
-            _chunk_range_local.set(i,0,1);
+        _chunk_range_global = qk::range();
+        for(int i = 0; i < _mesh_range_global.num_dims(); i++){
+            _chunk_range_global.extrude(0,1);
         }
 
-        qk::indexer_interface<extended_datachunk>::resize(_chunk_range_local);
+        qk::range chunk_range_local = _chunk_range_global;
 
-        _data[0].resize(_data_range_local);
+        qk::indexer_interface<extended_datachunk>::resize(chunk_range_local);
+
+        _data[0].resize(_mesh_range_local, _data_range);
 
     }
 }

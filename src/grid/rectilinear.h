@@ -15,7 +15,7 @@ class rectilinear: public grid
 public:
 
     rectilinear();
-    rectilinear(const range & range, const double *startxs, const double *widths);
+    rectilinear(const qk::range & range, const double *startxs, const double *widths);
 
     ~rectilinear();
 
@@ -24,6 +24,8 @@ public:
     double centroid(const int dim, const int index) const;
 
     double dx(const int dim) const;
+
+    void write_vtk(std::ofstream & file, const qk::basis::basis & basis) const;
 
 protected:
 

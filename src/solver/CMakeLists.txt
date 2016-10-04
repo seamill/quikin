@@ -3,6 +3,7 @@ add_library(qk_solver SHARED
     swap.cpp
     ssprk2_advection.cpp
     gaussian.cpp
+    bc_periodic.cpp
 )
     
 target_link_libraries(qk_solver qk)

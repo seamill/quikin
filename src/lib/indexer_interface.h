@@ -30,6 +30,7 @@ public:
 
     void swap(indexer_interface & interface)
     {
+        //TODO: This check needs to be a bit more rugged.. doesn't check if internal elements are swappable
         if (this->range().volume() != interface.range().volume()) {
             throw qk::exception("qk::indexer_interface::swap : Volume mismatch.");
         }

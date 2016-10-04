@@ -49,6 +49,20 @@ datachunk::write_VTK(std::ofstream & file, const qk::range & range) const
 
 }
 
+void
+datachunk::resize(const qk::range & mesh_range, const qk::range & data_range)
+{
+    _mesh_range = mesh_range;
+    _data_range = data_range;
+
+    qk::range range = _mesh_range;
+    for(int i = 0; i < _data_range.num_dims(); ++i){
+        range.extrude(data_range.lower(i), data_range.upper(i));
+    }
+
+    qk::indexer_interface<double>::resize(range);
+}
+
 }
 }
 

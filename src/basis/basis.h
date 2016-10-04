@@ -63,6 +63,11 @@ public:
         return a._num_points == b._num_points;
     }
 
+    friend bool operator !=(const basis & a, const basis & b)
+    {
+        return !(a==b);
+    }
+
 protected:
 
     std::string _name;

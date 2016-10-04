@@ -44,8 +44,7 @@ indexer::operator[](const int & dim) const
     return _index[dim];
 }
 
-int
-indexer::index(const int dim) const
+int indexer::index(const int dim) const
 {
     return _index[dim];
 }
@@ -65,6 +64,14 @@ indexer::operator=(const indexer & indexer)
     _linear_index = indexer._linear_index;
     return *this;
 }
+
+indexer &
+indexer::operator++()
+{
+    this->next();
+    return *this;
+}
+
 
 void indexer::increment(const int dim)
 {

@@ -5,6 +5,8 @@ namespace qk
 namespace variable
 {
 
+int variable_id::_tag = 0;
+
 variable_id::variable_id()
 {
 

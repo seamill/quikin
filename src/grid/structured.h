@@ -15,8 +15,7 @@ class structured: public grid
 public:
 
     structured();
-    structured(const range & range, const double *startxs,
-            const double *widths);
+    structured(const qk::range & range, const double *startxs, const double *widths);
 
     ~structured();
 

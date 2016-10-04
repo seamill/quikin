@@ -21,9 +21,13 @@ public:
 
     variable();
 
-    variable(const std::string & name, const std::vector<std::string> & component_names, const qk::basis::basis & basis, const qk::range & global_data_range);
+    variable(const std::string & name, const std::vector<std::string> & component_names, const qk::basis::basis & basis, const qk::range & global_mesh_range);
 
     ~variable();
+
+    void write_vtk(std::ofstream & file) const;
+
+    const std::string & name() const {return _name;}
 
 protected:
 
