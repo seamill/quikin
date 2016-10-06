@@ -8,8 +8,6 @@
 #include "lib/functions.h"
 #include "lib/exception.h"
 
-#define DIM_CHECK
-#define INDEX_CHECK
 
 namespace qk
 {
@@ -59,7 +57,7 @@ structured::bias_array(double * dxs, const int size, const int pow)
 void
 structured::apply_bias_symmetric(const int dim, const double pow)
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::structured::apply_bias_symmetric : Requested dimension out of range.");
     }
@@ -86,7 +84,7 @@ structured::apply_bias_symmetric(const int dim, const double pow)
 void
 structured::apply_bias_linear(const int dim, const double pow)
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::structured::apply_bias_linear : Requested dimension out of range.");
     }
@@ -107,12 +105,10 @@ structured::apply_bias_linear(const int dim, const double pow)
 double
 structured::centroid(const int dim, const int index) const
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::structured::centroid : Requested dimension out of range.");
     }
-#endif
-#ifdef INDEX_CHECK
     if(index >= upper(dim) || index < lower(dim)){
         throw qk::exception("qk::grid::structured::centroid : Requested index out of range.");
     }
@@ -123,12 +119,10 @@ structured::centroid(const int dim, const int index) const
 double
 structured::dx(const int dim, const int index) const
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::structured::dx : Requested dimension out of range.");
     }
-#endif
-#ifdef INDEX_CHECK
     if(index >= upper(dim) || index < lower(dim)){
         throw qk::exception("qk::grid::structured::dx : Requested index out of range.");
     }
@@ -139,7 +133,7 @@ structured::dx(const int dim, const int index) const
 void
 structured::recalculate_xcs(const int dim)
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::structured::recalculate_xcs : Requested dimension out of range.");
     }

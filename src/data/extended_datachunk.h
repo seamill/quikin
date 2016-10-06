@@ -22,9 +22,12 @@ public:
     extended_datachunk();
     ~extended_datachunk();
 
-    void resize(const qk::range & mesh_range, const qk::range & data_range);
+    void resize(const qk::range & mesh_range, const qk::range & data_range, const int num_ghost_layers=2);
 
-    static int num_ghost_layers();
+    void
+    write_VTK(std::ofstream & file, const qk::range & range) const;
+
+    int num_ghost_layers() const;
 
     const qk::range & internal_range() const
     {
@@ -48,6 +51,8 @@ public:
     }
 
 protected:
+
+    int _num_ghost_layers;
 
     qk::range _internal_range;
 

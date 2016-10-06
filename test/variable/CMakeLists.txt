@@ -1,0 +1,3 @@
+add_executable(qk_test_variable_variable_exe test_variable.cpp)
+target_link_libraries(qk_test_variable_variable_exe qk_variable)
+add_test(NAME qk_test_variable_variable COMMAND qk_test_variable_variable_exe)

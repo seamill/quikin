@@ -56,15 +56,22 @@ public:
 
     void pull(const indexer_interface<T> & interface)
     {
-        // We assume interface range has the same volume as range
-        // TODO: this needs to be sped up
-        // Cant use memcopy if T has dynamic memory
-        qk::indexer src_indexer = interface.indexer();
-        qk::indexer dst_indexer = indexer();
-        while (src_indexer.exists()) {
-            (*this)[dst_indexer] = interface[src_indexer];
-            dst_indexer.next();
-            src_indexer.next();
+        pull(interface, this->range(), interface.range());
+    }
+
+    void fill(const T & value)
+    {
+        std::fill(_data.begin(),_data.end(),value);
+    }
+
+    void fill(const qk::range & sub_range, const T & value)
+    {
+        if(! includes(sub_range)){
+            throw qk::exception("qk::indexer_interface::fill : Requested range extends outside of interface bounds.");
+        }
+
+        for(qk::indexer idx = this->indexer(sub_range); idx.exists(); ++idx){
+            (*this)[idx] = value;
         }
     }
 

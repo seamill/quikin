@@ -17,22 +17,30 @@ namespace qk
 namespace data
 {
 
-class dataset:
-        public qk::indexer_interface<extended_datachunk>
+class dataset: public qk::indexer_interface<extended_datachunk>
 {
 public:
 
     dataset();
-    dataset(const qk::range & global_data_range, const qk::basis::basis & basis, const int num_components);
+    dataset(const qk::range & global_data_range,
+        const qk::basis::basis & basis,
+        const int num_components,
+        const int num_ghost_layers = 2);
     ~dataset();
 
     void sync();
 
-    const qk::basis::basis & basis() const {return _basis;}
+    const qk::basis::basis & basis() const
+    {
+        return _basis;
+    }
 
 protected:
 
-    void resize(const qk::range & global_data_range, const qk::basis::basis & basis, const int num_components);
+    void resize(const qk::range & global_data_range,
+        const qk::basis::basis & basis,
+        const int num_components,
+        const int num_ghost_layers = 2);
 
     qk::basis::basis _basis;
     qk::range _data_range;

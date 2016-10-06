@@ -37,6 +37,8 @@ public:
     int lower(const int dim) const {return _lower[dim];}
     int upper(const int dim) const {return _upper[dim];}
 
+    bool includes(const qk::range & rng) const;
+
     void set(const int dim, const int lower, const int upper);
 
     range & operator=(const range & range);
@@ -63,6 +65,7 @@ public:
 
 protected:
 
+    // This is the only function with write access to _num_dims, _lower, _upper_, and _stride.
     void setup(const int numDims, const int *lower, const int *upper);
 
     int _num_dims;
@@ -76,4 +79,28 @@ private:
 
 }
 
+
+inline bool operator==(const qk::range & a, const qk::range & b)
+{
+
+    if(a.num_dims()!=b.num_dims()){
+        return false;
+    }
+
+    for(int i=0;i<a.num_dims();++i){
+        if(a.lower(i) != b.lower(i)){
+            return false;
+        }
+        if(a.upper(i) != b.upper(i)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
+inline bool operator!=(const qk::range & a, const qk::range & b)
+{
+    return !(a==b);
+}
 #endif // _qk_lib_range_H

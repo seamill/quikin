@@ -9,9 +9,6 @@
 #include "lib/exception.h"
 #include "basis/volume_average.h"
 
-#define DIM_CHECK
-#define INDEX_CHECK
-
 namespace qk
 {
 
@@ -82,12 +79,10 @@ rectilinear::xc(const qk::indexer & idx, double * x) const
 double
 rectilinear::centroid(const int dim, const int index) const
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::rectilinear::centroid : Requested dimension out of range.");
     }
-#endif
-#ifdef INDEX_CHECK
     if(index >= upper(dim) || index < lower(dim)){
         throw qk::exception("qk::grid::rectilinear::centroid : Requested index out of range.");
     }
@@ -98,7 +93,7 @@ rectilinear::centroid(const int dim, const int index) const
 double
 rectilinear::dx(const int dim) const
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::rectilinear::dx : Requested dimension out of range.");
     }

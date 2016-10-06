@@ -41,8 +41,6 @@ protected:
     int _linear_index;
     bool _exists;
     std::vector<int> _index;
-    std::vector<int> _stride;
-
 
 };
 

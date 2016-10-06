@@ -53,26 +53,44 @@ range::resize(const int num_dims, const int *lower, const int *upper)
     setup(num_dims, lower, upper);
 }
 
+bool
+range::includes(const qk::range & rng) const
+{
+    if(rng.num_dims() != _num_dims){
+        return false;
+    }
+
+    for(int i = 0;i<_num_dims;++i){
+        const bool inclusive = (_lower[i] <= rng._lower[i]) and (_upper[i] >= rng._upper[i]);
+        if(!inclusive){
+            return false;
+        }
+    }
+    return true;
+
+}
+
 void
 range::setup(const int num_dims, const int *lower, const int *upper)
 {
-    // Clear range
+    // initialize
+    _num_dims = num_dims;
     _lower.clear();
     _upper.clear();
     _stride.clear();
 
     // Setup new range
-    _num_dims = num_dims;
-    if(_num_dims){
-        _lower.resize(_num_dims);
-        _upper.resize(_num_dims);
-        _stride.resize(_num_dims);
-        for(int i = 0; i < _num_dims; i++){
+
+    if(_num_dims>0){
+        _lower.resize(_num_dims,0);
+        _upper.resize(_num_dims,0);
+        _stride.resize(_num_dims,0);
+        for(int i = 0; i < _num_dims; ++i){
             _lower[i] = lower[i];
             _upper[i] = upper[i];
         }
         _stride[_num_dims-1] = 1;
-        for(int i = _num_dims-2; i >= 0; i--){
+        for(int i = _num_dims-2; i >= 0; --i){
             _stride[i] = _stride[i+1] * length(i+1);
         }
     }
@@ -126,7 +144,7 @@ range::stride(const int i) const
 int
 range::volume() const
 {
-    if(!_num_dims){return 0;}
+    if(_num_dims==0){return 0;}
     return _stride[0] * length(0);
 
 }
@@ -146,9 +164,9 @@ range::set(const int dim, const int new_lower, const int new_upper)
 }
 
 range &
-range::operator=(const range & range)
+range::operator=(const range & rng)
 {
-    resize(range);
+    setup(rng._num_dims, rng._lower.data(), rng._upper.data());
     return *this;
 }
 

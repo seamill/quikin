@@ -14,15 +14,18 @@ namespace qk
 namespace data
 {
 
-dataset::dataset():
-    qk::indexer_interface<extended_datachunk>()
+dataset::dataset() :
+        qk::indexer_interface<extended_datachunk>()
 {
-    resize(qk::range(),qk::basis::basis(),1);
+    resize(qk::range(), qk::basis::basis(), 1);
 }
 
-dataset::dataset(const qk::range & global_data_range, const qk::basis::basis & basis, const int num_components)
+dataset::dataset(const qk::range & global_data_range,
+    const qk::basis::basis & basis,
+    const int num_components,
+    const int num_ghost_layers)
 {
-    resize(global_data_range, basis, num_components);
+    resize(global_data_range, basis, num_components, num_ghost_layers);
 }
 
 dataset::~dataset()
@@ -30,8 +33,7 @@ dataset::~dataset()
     // Nothing to do here
 }
 
-void
-dataset::sync()
+void dataset::sync()
 {
     throw qk::exception("qk::data::dataset::sync : Function really doesn't work yet.");
 
@@ -46,16 +48,18 @@ dataset::sync()
     // 4 ranges per dimension per dataset (upper-send/upper-recv/lower-send/lower-recv)
 }
 
-void
-dataset::resize(const qk::range & global_range, const qk::basis::basis & basis, const int num_components)
+void dataset::resize(const qk::range & global_range,
+    const qk::basis::basis & basis,
+    const int num_components,
+    const int num_ghost_layers)
 {
     _basis = basis;
     _mesh_range_global = global_range;
     _data_range = qk::range();
-    _data_range.extrude(0,basis.num_points());
-    _data_range.extrude(0,num_components);
+    _data_range.extrude(0, basis.num_points());
+    _data_range.extrude(0, num_components);
 
-    if(_mesh_range_global.volume() > 0){
+    if (_mesh_range_global.volume() > 0) {
 
         // For now this is a hack for a single process
 
@@ -64,15 +68,15 @@ dataset::resize(const qk::range & global_range, const qk::basis::basis & basis, 
 
         // Construct an mpi chunk size - only one chunk per process
         _chunk_range_global = qk::range();
-        for(int i = 0; i < _mesh_range_global.num_dims(); i++){
-            _chunk_range_global.extrude(0,1);
+        for (int i = 0; i < _mesh_range_global.num_dims(); i++) {
+            _chunk_range_global.extrude(0, 1);
         }
 
         qk::range chunk_range_local = _chunk_range_global;
 
         qk::indexer_interface<extended_datachunk>::resize(chunk_range_local);
 
-        _data[0].resize(_mesh_range_local, _data_range);
+        this->data()[0].resize(_mesh_range_local, _data_range, num_ghost_layers);
 
     }
 }

@@ -24,10 +24,10 @@ datachunk::~datachunk()
 }
 
 datachunk &
-datachunk::operator=(const datachunk & dataset)
+datachunk::operator=(const datachunk & chunk)
 {
-    resize(dataset.range());
-    pull(dataset);
+    resize(chunk._mesh_range, chunk._data_range);
+    pull(chunk);
     return *this;
 }
 
@@ -61,6 +61,7 @@ datachunk::resize(const qk::range & mesh_range, const qk::range & data_range)
     }
 
     qk::indexer_interface<double>::resize(range);
+
 }
 
 }

@@ -1,0 +1,9 @@
+
+add_executable(qk_test_lib_range_exe test_range.cpp)
+target_link_libraries(qk_test_lib_range_exe qk)
+add_test(NAME qk_test_lib_range COMMAND qk_test_lib_range_exe)
+
+
+add_executable(qk_test_lib_indexer_exe test_indexer.cpp)
+target_link_libraries(qk_test_lib_indexer_exe qk)
+add_test(NAME qk_test_lib_indexer COMMAND qk_test_lib_indexer_exe)

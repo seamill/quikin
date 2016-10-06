@@ -21,10 +21,10 @@ int advection_test()
 {
 
     // Define solver stuff
-    const std::vector<double> velocity(2, 0.25);
+    const std::vector<double> velocity(2, 1.0);
     const int num_frames = 10;
     const int num_steps_per_frame = 100;
-    const double time_end = 5.0;
+    const double time_end = 1.0;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
     const std::string work_directory = "/Users/seamill/local_storage/quikin/data";
 

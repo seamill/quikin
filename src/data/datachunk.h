@@ -14,17 +14,16 @@ namespace qk
 namespace data
 {
 
-class datachunk:
-        public qk::indexer_interface<double>
+class datachunk: public qk::indexer_interface<double>
 {
 public:
 
     datachunk();
     virtual ~datachunk();
 
-    datachunk & operator=(const datachunk & dataset);
+    datachunk & operator=(const datachunk & chunk);
 
-    void write_VTK(std::ofstream & file, const qk::range & range) const;
+    virtual void write_VTK(std::ofstream & file, const qk::range & range) const;
 
     virtual void resize(const qk::range & mesh_range, const qk::range & data_range);
 

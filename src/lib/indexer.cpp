@@ -1,5 +1,8 @@
 #include "indexer.h"
 
+// QK includes
+#include "lib/exception.h"
+
 namespace qk
 {
 
@@ -8,7 +11,6 @@ indexer::indexer() :
         _sub_range(),
         _linear_index(0),
         _exists(false)
-
 {
 
 }
@@ -19,16 +21,18 @@ indexer::indexer(const qk::range & sub_range, const qk::range & sup_range) :
         _linear_index(0),
         _exists(false)
 {
+    _index.resize(_num_dims,0);
+
     if (_num_dims > 0) {
-        _exists = true;
-        _index.resize(_num_dims);
-        _stride.resize(_num_dims);
-        int pStride = 1;
-        for (int i = _num_dims - 1; i >= 0; i--) {
-            _index[i] = _sub_range.lower(i);
-            _stride[i] = pStride;
-            pStride *= length(i);
-            _linear_index += (_index[i] - _lower[i]) * _stride[i];
+        _exists = this->includes(_sub_range);
+        if(_exists){
+            for(int i = 0; i < _num_dims; i++){
+                _index[i] = sub_range.lower(i);
+            }
+            _linear_index = 0;
+            for (int i = 0; i < _num_dims; ++i){
+                _linear_index += (_index[i] - _lower[i]) * _stride[i];
+            }
         }
     }
 }
@@ -41,11 +45,21 @@ indexer::~indexer()
 const int &
 indexer::operator[](const int & dim) const
 {
+#if _QK_RANGE_CHECK_
+    if(dim < 0 or dim > _num_dims){
+        throw qk::exception("qk::indexer::operator[] : Dimension out of range.");
+    }
+#endif
     return _index[dim];
 }
 
 int indexer::index(const int dim) const
 {
+#if _QK_RANGE_CHECK_
+    if(dim < 0 or dim > _num_dims){
+        throw qk::exception("qk::indexer::index : Dimension out of range.");
+    }
+#endif
     return _index[dim];
 }
 
@@ -72,15 +86,24 @@ indexer::operator++()
     return *this;
 }
 
-
 void indexer::increment(const int dim)
 {
+#if _QK_RANGE_CHECK_
+    if(dim < 0 or dim > _num_dims){
+        throw qk::exception("qk::indexer::increment : Dimension out of range.");
+    }
+#endif
     _linear_index += _stride[dim];
     _index[dim]++;
 }
 
 void indexer::decrement(const int dim)
 {
+#if _QK_RANGE_CHECK_
+    if(dim < 0 or dim > _num_dims){
+        throw qk::exception("qk::indexer::decrement : Dimension out of range.");
+    }
+#endif
     _linear_index -= _stride[dim];
     _index[dim]--;
 }

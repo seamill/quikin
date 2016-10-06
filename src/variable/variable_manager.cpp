@@ -56,7 +56,7 @@ variable_manager::add_variable(const qk::variable::variable_id & var)
     if(_variables.find(var) != _variables.end()){
         throw qk::exception("qk::variable::variable_manager::add_variable : Variable already exists.");
     }
-    _variables[var] = new qk::variable::variable(var.name(), var.component_names(), var.basis(), _grid.range());
+    _variables[var] = new qk::variable::variable(var.name(), var.component_names(), var.basis(), _grid);
 }
 
 void variable_manager::write_vtk(const std::string & prefix,

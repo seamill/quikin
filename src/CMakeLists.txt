@@ -20,4 +20,3 @@ target_link_libraries(quikin qk_data)
 target_link_libraries(quikin qk_variable)
 target_link_libraries(quikin qk_grid)
 target_link_libraries(quikin qk_basis)
-

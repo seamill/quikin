@@ -8,9 +8,6 @@
 #include "lib/functions.h"
 #include "lib/exception.h"
 
-#define DIM_CHECK
-#define INDEX_CHECK
-
 namespace qk
 {
 
@@ -50,7 +47,7 @@ grid::setup(const qk::range & range, const double *startxs, const double *widths
 double
 grid::width(const int dim) const
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::grid::width : Requested dimension out of range.");
     }
@@ -62,7 +59,7 @@ grid::width(const int dim) const
 double
 grid::start(const int dim) const
 {
-#ifdef DIM_CHECK
+#ifdef _QK_RANGE_CHECK_
     if(dim >= num_dims() || dim < 0){
         throw qk::exception("qk::grid::grid::start : Requested dimension out of range.");
     }
