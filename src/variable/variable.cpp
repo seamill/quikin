@@ -46,7 +46,7 @@ void variable::write_vtk(std::ofstream & file) const
         for (int i = 0; i < _component_names.size(); i++) {
             const std::string & component_name = _component_names[i];
             file << "SCALARS " << _name << "." << component_name << " float 1\n";
-            file << "LOOKUP_TABLE default\n";
+//            file << "LOOKUP_TABLE default\n";
 
             bool single_chunk = true;
 
@@ -55,11 +55,15 @@ void variable::write_vtk(std::ofstream & file) const
                 qk::range internal_range = data.internal_range();
                 internal_range.set(internal_range.num_dims() - 1, i, i + 1);
 
-                int num = 0;
-                for (qk::indexer idx = data.indexer(internal_range); idx.exists(); idx.next()) {
-                    file << double(data[idx]) << "\n";
-                    num++;
-                }
+                data.write_VTK(file, data.internal_range());
+
+
+//
+//                int num = 0;
+//                for (qk::indexer idx = data.indexer(internal_range); idx.exists(); idx.next()) {
+//                    file << double(data[idx]) << "\n";
+//                    num++;
+//                }
 //                std::cout << "Expected " << _data_range_global.volume() << " elements or "<<internal_range.volume() <<" elements, got " << num << std::endl;
 
                 if (!single_chunk) {

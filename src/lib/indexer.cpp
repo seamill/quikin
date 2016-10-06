@@ -70,10 +70,8 @@ indexer::operator=(const indexer & indexer)
     _sub_range = indexer._sub_range;
     _exists = indexer._exists;
     _index.resize(_num_dims);
-    _stride.resize(_num_dims);
-    for (int i = _num_dims - 1; i >= 0; i--) {
+    for (int i = 0; i < _num_dims; ++i){
         _index[i] = indexer._index[i];
-        _stride[i] = indexer._stride[i];
     }
     _linear_index = indexer._linear_index;
     return *this;

@@ -21,9 +21,11 @@ int advection_test()
 {
 
     // Define solver stuff
-    const std::vector<double> velocity(2, 1.0);
-    const int num_frames = 10;
-    const int num_steps_per_frame = 100;
+    std::vector<double> velocity(2, 1.0);
+    velocity[0] = -1.;
+    velocity[1] = -1.;
+    const int num_frames = 100;
+    const int num_steps_per_frame = 10;
     const double time_end = 1.0;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
     const std::string work_directory = "/Users/seamill/local_storage/quikin/data";
@@ -96,7 +98,7 @@ int advection_test()
         std::vector<qk::variable::variable_id> in_vars;
         in_vars.push_back(var);
 
-        std::vector<double> average(0., 3);
+        std::vector<double> average(3, 0);
         gaussian.set_output_variables(in_vars);
         gaussian.setup(1.0, average, 0.1);
     }
