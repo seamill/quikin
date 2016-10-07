@@ -89,6 +89,8 @@ void variable_manager::write_vtk(const std::string & prefix,
 
         _grid.write_vtk(file, basis);
 
+        file << "CELL_DATA " << _grid.volume() << "\n";
+
         // Iterate through the domains in n
         for(const qk::variable::variable_id & var_id : variables){
             const auto var_itr = _variables.find(var_id);

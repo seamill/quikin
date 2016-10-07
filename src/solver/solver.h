@@ -29,6 +29,18 @@ public:
     }
 
     virtual void
+    add_input_variable(const qk::variable::variable_id & input_variable_id)
+    {
+        _input_variable_ids.push_back(input_variable_id);
+    }
+
+    virtual void
+    add_output_variable(const qk::variable::variable_id & output_variable_id)
+    {
+        _output_variable_ids.push_back(output_variable_id);
+    }
+
+    virtual void
     set_input_variables(const std::vector<qk::variable::variable_id> & input_variable_ids)
     {
         _input_variable_ids = input_variable_ids;

@@ -132,6 +132,16 @@ int indexer::linear_index() const
     return _linear_index;
 }
 
+int indexer::final_linear_index() const
+{
+
+    int index=volume();
+    for(int i = 0; i < _num_dims;++i){
+        index -= (upper(i) - _sub_range.upper(i)) * stride(i);
+    }
+    return index;
+}
+
 bool indexer::exists() const
 {
     return _exists;

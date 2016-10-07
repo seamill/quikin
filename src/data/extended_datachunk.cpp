@@ -76,21 +76,7 @@ extended_datachunk::resize(const qk::range & mesh_range, const qk::range & data_
 void
 extended_datachunk::write_VTK(std::ofstream & file, const qk::range & range) const
 {
-
     qk::data::datachunk::write_VTK(file,range);
-
-//    file << "CELL_DATA " << _internal_range.volume() << std::endl;
-//
-//    // Write data
-//    file << "SCALARS data float" << std::endl;
-//    file << "LOOKUP_TABLE default" << std::endl;
-//
-//    // TODO: fix this so that it always does x,y,z
-//    for(qk::indexer idx = indexer(_internal_range); idx.exists(); idx.next()){
-//        file << (*this)[idx] << ' ';
-//    }
-//    file << '\n';
-
 }
 
 int

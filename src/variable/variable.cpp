@@ -41,8 +41,6 @@ void variable::write_vtk(std::ofstream & file) const
 {
     if (this->basis() == qk::basis::volume_average()) {
 
-        file << "CELL_DATA " << _mesh_range_global.volume() * _data_range.volume() << "\n";
-
         for (int i = 0; i < _component_names.size(); i++) {
             const std::string & component_name = _component_names[i];
             file << "SCALARS " << _name << "." << component_name << " float 1\n";
@@ -55,7 +53,10 @@ void variable::write_vtk(std::ofstream & file) const
                 qk::range internal_range = data.internal_range();
                 internal_range.set(internal_range.num_dims() - 1, i, i + 1);
 
-                data.write_VTK(file, data.internal_range());
+                qk::range comp_range = data.internal_range();
+                comp_range.set(comp_range.num_dims()-1,i,i+1);
+
+                data.write_VTK(file, comp_range);
 
 
 //

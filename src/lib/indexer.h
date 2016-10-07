@@ -26,6 +26,7 @@ public:
     bool exists() const;
 
     int linear_index() const;
+    int final_linear_index() const;
 
     const int & operator[](const int & dim) const;
     indexer & operator=(const indexer & idx);
