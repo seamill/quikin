@@ -37,8 +37,7 @@ public:
         _data.swap(interface._data);
     }
 
-    void pull(const indexer_interface<T> & interface,
-            const qk::range & from_range, const qk::range & to_range)
+    void pull(const indexer_interface<T> & interface, const qk::range & from_range, const qk::range & to_range)
     {
         if (from_range.volume() != to_range.volume()) {
             throw qk::exception("qk::indexer_interface::pull : Volume mismatch.");
@@ -61,16 +60,16 @@ public:
 
     void fill(const T & value)
     {
-        std::fill(_data.begin(),_data.end(),value);
+        std::fill(_data.begin(), _data.end(), value);
     }
 
     void fill(const qk::range & sub_range, const T & value)
     {
-        if(! includes(sub_range)){
+        if (!includes(sub_range)) {
             throw qk::exception("qk::indexer_interface::fill : Requested range extends outside of interface bounds.");
         }
 
-        for(qk::indexer idx = this->indexer(sub_range); idx.exists(); ++idx){
+        for (qk::indexer idx = this->indexer(sub_range); idx.exists(); ++idx) {
             (*this)[idx] = value;
         }
     }
@@ -136,6 +135,26 @@ public:
             idx += (index[i] - _lower[i]) * _stride[i];
         }
         return &(_data[0]) + idx;
+    }
+
+    const T * data(const qk::indexer & idx) const
+    {
+#ifdef _QK_RANGE_CHECK_
+        if(idx.linear_index() >= _data.size()) {
+            throw qk::exception("qk::indexer_interface::data : Indexer out of range.");
+        }
+#endif
+        return _data.data() + idx.linear_index();
+    }
+
+    T * data(const qk::indexer & idx)
+    {
+#ifdef _QK_RANGE_CHECK_
+        if(idx.linear_index() >= _data.size()) {
+            throw qk::exception("qk::indexer_interface::data : Indexer out of range.");
+        }
+#endif
+        return _data.data() + idx.linear_index();
     }
 
 protected:

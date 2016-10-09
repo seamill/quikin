@@ -1,12 +1,11 @@
-#ifndef _qk_solver_bc_periodic_H
-#define _qk_solver_bc_periodic_H
-
-// STL includes
-#include <vector>
+#ifndef _qk_solver_bc_copy_out_H
+#define _qk_solver_bc_copy_out_H
 
 // QK includes
 #include "solver/solver.h"
-#include "variable/variable_manager.h"
+
+// STL includes
+#include <vector>
 
 namespace qk
 {
@@ -14,11 +13,11 @@ namespace qk
 namespace solver
 {
 
-class bc_periodic: public solver
+class bc_copy_out: public solver
 {
 public:
-    bc_periodic()=default;
-    ~bc_periodic()=default;
+    bc_copy_out()=default;
+    ~bc_copy_out()=default;
 
     void
     setup(const std::vector<int> & dims){
@@ -37,4 +36,4 @@ protected:
 }
 }
 
-#endif // _qk_solver_bc_periodic_H
+#endif // _qk_solver_bc_copy_out_H

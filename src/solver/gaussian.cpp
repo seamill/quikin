@@ -45,7 +45,7 @@ gaussian::solve(qk::variable::variable_manager & variable_manager, const int tag
         qk::variable::variable & var = variable_manager.output_variable(_output_variable_ids[i]);
 
         for(qk::indexer data_idx = var.indexer(); data_idx.exists(); data_idx.next()){
-            qk::data::datachunk & data = var[data_idx];
+            qk::data::extended_datachunk & data = var[data_idx];
             for(qk::indexer idx = data.indexer(); idx.exists(); idx.next()){
                 grid.xc(idx,x);
 

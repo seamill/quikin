@@ -1,4 +1,4 @@
-#include "gaussian_pulse.h"
+#include "wave_1D.h"
 
 
 // STL includes
@@ -19,7 +19,7 @@
 
 #include "solver/ssprk3.h"
 #include "solver/maxwell.h"
-#include "solver/magnetic_pulse.h"
+#include "solver/electromagnetic_wave_1D.h"
 #include "solver/bc_periodic.h"
 #include "solver/swap.h"
 #include "solver/fill.h"
@@ -32,11 +32,13 @@ namespace maxwell
 {
 
 void
-gaussian_pulse()
+wave_1D()
 {
 
     // Define solver stuff
-    const double c = 5;
+    const double c = 1;
+    const double k = 2*3.14159263;
+    const double Bx=1,By=1,Bz=1;
     const int num_frames = 100;
     const int num_steps_per_frame = 10;
     const double time_end = 1.0;
@@ -66,9 +68,15 @@ gaussian_pulse()
         grid = qk::grid::rectilinear(qk::range(num_dims, dims), startxs, widths);
     }
     if(num_dims==2){
-        const int dims[] = { 128,128};
+        const int dims[] = { 2,128};
         const double startxs[] = { -0.5,-.5};
         const double widths[] = { 1.0,1.};
+        grid = qk::grid::rectilinear(qk::range(num_dims, dims), startxs, widths);
+    }
+    if(num_dims==3){
+        const int dims[] = {2,2,128};
+        const double startxs[] = {-0.5,-.5,-.5};
+        const double widths[] = {1.,1.,1.};
         grid = qk::grid::rectilinear(qk::range(num_dims, dims), startxs, widths);
     }
 
@@ -113,10 +121,10 @@ gaussian_pulse()
         maxwells.push_back(maxwell);
     }
 
-    qk::solver::magnetic_pulse ic;
+    qk::solver::electromagnetic_wave_1D ic;
     {
         ic.add_output_variable(var);
-        ic.setup(1.,0.01);
+        ic.setup(num_dims-1,c,k,Bx,By,Bz);
     }
 
     std::vector<qk::solver::bc_periodic> bcs;

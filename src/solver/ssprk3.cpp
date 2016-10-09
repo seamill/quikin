@@ -13,23 +13,13 @@ namespace qk
 namespace solver
 {
 
-ssprk3::ssprk3()
-{
-
-}
-
-ssprk3::~ssprk3()
-{
-
-}
-
 void ssprk3::solve(qk::variable::variable_manager & variable_manager, const int tag) const
 {
     if (_input_variable_ids.size() != 2) {
         throw qk::exception("qk::solver::ssprk3::solve : Input must contain two variables (q_0, rhs).");
     }
 
-    if (_output_variable_ids.size() != 3) {
+    if (_output_variable_ids.size() < 3) {
         throw qk::exception("qk::solver::ssprk3::solve : Output must contain three variables (q_1, q_2, q_3).");
     }
 

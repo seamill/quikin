@@ -2,6 +2,7 @@
 
 // STL includes
 #include <fstream>
+#include <iomanip>
 
 // QK includes
 #include "variable/variable.h"
@@ -83,6 +84,7 @@ void variable_manager::write_vtk(const std::string & prefix,
             throw qk::exception("qk::solver:advection::write_VTK : File '" + filename + "' could not be created");
         }
 
+        file << std::setprecision(16);
         file << "# vtk DataFile Version 2.0\n";
         file << "quikin output\n";
         file << "ASCII\n";

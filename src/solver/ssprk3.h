@@ -3,9 +3,6 @@
 
 // QK includes
 #include "solver/solver.h"
-#include "grid/rectilinear.h"
-#include "variable/variable_id.h"
-#include "variable/variable_manager.h"
 
 namespace qk
 {
@@ -22,8 +19,10 @@ public:
         STAGE_0 = 0, STAGE_1 = 1, STAGE_2 = 2
     };
 
-    ssprk3();
-    ~ssprk3();
+    ssprk3() = default;
+    ~ssprk3() = default;
+
+    int num_stages() const {return 3;}
 
     void
     solve(qk::variable::variable_manager & variable_manager, const int tag = 0) const;
@@ -51,8 +50,6 @@ protected:
         const qk::data::extended_datachunk & rhs,
         qk::data::extended_datachunk & n3) const;
 
-    qk::grid::rectilinear _grid;
-    std::vector<double> _velocity;
 };
 
 }

@@ -1,4 +1,4 @@
-#include "two_fluid_brio_wu.h"
+#include "gem_challenge.h"
 
 #include <cmath>
 #include <string>
@@ -15,15 +15,18 @@
 #include "lib/exception.h"
 
 #include "solver/ssprk3.h"
+#include "solver/rk1.h"
 #include "solver/euler.h"
 #include "solver/maxwell.h"
 #include "solver/current_source.h"
 #include "solver/lorentz_force.h"
-#include "solver/brio_wu_shock_tube.h"
+#include "solver/gem_challenge.h"
+#include "solver/bc_periodic.h"
 #include "solver/bc_no_slip.h"
 #include "solver/bc_conducting_wall.h"
 #include "solver/swap.h"
 #include "solver/fill.h"
+#include "solver/print.h"
 
 namespace qk
 {
@@ -33,36 +36,74 @@ namespace plasma
 {
 
 void
-two_fluid_brio_wu()
+gem_challenge()
 {
 
-    const double c = 10.;
-    const double eps0 = 1.e-6;
-    const double gamma = 2.;
-    const double qe = -1.0;
-    const double qi = 1.0;
-    const double me = 0.1;
-    const double mi = 1.0;
-    const double Pl = 1.;
-    const double Pr = 0.1;
-    const double nl = 1.0;
-    const double nr = 0.125;
-    const double Bx = 0.75;
-    const double By = 1.;
+    typedef qk::solver::ssprk3 time_integrator;
+
+
+    const double e = 1.60217662e-19;
+    const double me = 9.10938356e-31;
+    const double mp = 1.6726219e-27;
+    const double eps0 = 8.85418782e-12;
+    const double mu0 = 1.25663706e-6;
+    const double c = 299792458.0;
+    const double gamma = 5./3.;
+    const double pi = 3.14159263;
+
+
+
+    const double di = 1.;
+    const double qe = -e;
+    const double qi = e;
+
+    const double mi_me = 25.;
+    const double lam_di = 0.5;
+    const double n1_n0 = 0.2;
+    const double Te_Ti = 0.2;
+    const double vse_c = 0.1;
+    const double Lx = 4 * pi * di;
+
+//    const double Lx = 2 * pi * di;
+//    const double mi_me = 1.;
+//    const double Te_Ti = 1.0;
+
+    const double mi = mi_me * me;
+    const double n0 = c*c*mi*eps0/(e*e*di*di);
+    const double n1 = n1_n0 * n0;
+    const double lam = lam_di * di;
+
+    const double vse = vse_c * c;
+    const double Te = vse * vse * me / gamma;
+    const double Ti = Te / Te_Ti;
+    const double P0 = n0 * (Te + Ti);
+    const double B0 = std::sqrt(2*mu0*P0);
+
+    const double ue0 = 2*Te/qe/lam/B0;
+    const double ui0 = 2*Ti/qi/lam/B0;
+
+    const double wce = e*B0/me;
+    const double wci = e*B0/mi;
+
+    const double wpe = std::sqrt(n0*e*e/eps0/me);
+    const double wpi = std::sqrt(n0*e*e/eps0/mi);
+
+    const int Nx = 128;
 
     std::vector<double> masses;
     masses.push_back(me);
     masses.push_back(mi);
     std::vector<double> charges;
-    charges.push_back(qe);
-    charges.push_back(qi);
+    charges.push_back(-e);
+    charges.push_back( e);
 
     // Define solver stuff
-    const int num_frames = 100;
-    const int num_steps_per_frame = 10;
-    const double time_end = 0.1;
+    const int num_frames = 1000;
+    const int num_steps_per_frame = 20;
+    const double time_end = 40./wci;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
-    const std::vector<int> bc_dims(1,0);
+    const std::vector<int> periodic_dims(1,1);
+    const std::vector<int> walls_dims(1,0);
     const std::string work_directory = "/Users/seamill/local_storage/quikin/data";
     std::vector<std::string> fluid_component_names;
     fluid_component_names.push_back("rho");
@@ -82,14 +123,28 @@ two_fluid_brio_wu()
     // Define domain
     qk::grid::rectilinear grid;
     {
-        const int num_dims = 1;
-        const int dims[] = { 100};
+        const int num_dims = 2;
+        const int dims[] = {Nx,2*Nx};
         qk::range domain_range(num_dims, dims);
-        const double startxs[] = { -0.5};
-        const double widths[] = { 1.0};
+        const double startxs[] = {-Lx/2.,-Lx};
+        const double widths[] = {Lx,2*Lx};
 
         grid = qk::grid::rectilinear(domain_range, startxs, widths);
     }
+
+
+
+
+    const double dx = grid.dx(0);
+    std::cout << "CFL Speed of light: " << time_dt * c / dx << std::endl;
+    std::cout << "CFL Speed of sound (e): " << time_dt * vse / dx << std::endl;
+    std::cout << "dt * wpe: " << time_dt * wpe << std::endl;
+    std::cout << "dt * wce: " << time_dt * wce << std::endl;
+    std::cout << "dt * wpi: " << time_dt * wpi << std::endl;
+    std::cout << "dt * wci: " << time_dt * wci << std::endl;
+
+
+
 
     qk::basis::basis basis = qk::basis::volume_average();
 
@@ -120,7 +175,7 @@ two_fluid_brio_wu()
         fields.push_back(qk::variable::variable_id("field_rhs", field_component_names, basis));
     }
 
-    qk::solver::ssprk3 electrons_ti;
+    time_integrator electrons_ti;
     {
         electrons_ti.add_input_variable(electrons[0]);
         electrons_ti.add_input_variable(electrons[4]);
@@ -129,7 +184,7 @@ two_fluid_brio_wu()
         electrons_ti.add_output_variable(electrons[3]);
     }
 
-    qk::solver::ssprk3 ions_ti;
+    time_integrator ions_ti;
     {
         ions_ti.add_input_variable(ions[0]);
         ions_ti.add_input_variable(ions[4]);
@@ -138,7 +193,7 @@ two_fluid_brio_wu()
         ions_ti.add_output_variable(ions[3]);
     }
 
-    qk::solver::ssprk3 field_ti;
+    time_integrator field_ti;
     {
         field_ti.add_input_variable(fields[0]);
         field_ti.add_input_variable(fields[4]);
@@ -296,56 +351,81 @@ two_fluid_brio_wu()
         field_current_sources.push_back(ss);
     }
 
-    qk::solver::brio_wu_shock_tube ic;
+    qk::solver::gem_challenge ic;
     {
         ic.add_output_variable(electrons[0]);
         ic.add_output_variable(ions[0]);
         ic.add_output_variable(fields[0]);
-        ic.setup(gamma,me,mi,nl,nr,Pl,Pr,Bx,By);
+        ic.setup(lam,Lx,n0,n1,gamma,qe,me,ue0,Te,qi,mi,ui0,Ti,B0);
     }
 
-
-    std::vector<qk::solver::bc_no_slip> fluid_bcs;
+    std::vector<qk::solver::bc_no_slip> fluid_wall_bcs;
     {
         qk::solver::bc_no_slip bc;
-        bc.setup(bc_dims);
+        bc.setup(walls_dims);
         bc.add_output_variable(electrons[0]);
         bc.add_output_variable(ions[0]);
-        fluid_bcs.push_back(bc);
+        fluid_wall_bcs.push_back(bc);
     }
     {
         qk::solver::bc_no_slip bc;
-        bc.setup(bc_dims);
+        bc.setup(walls_dims);
         bc.add_output_variable(electrons[1]);
         bc.add_output_variable(ions[1]);
-        fluid_bcs.push_back(bc);
+        fluid_wall_bcs.push_back(bc);
     }
     {
         qk::solver::bc_no_slip bc;
-        bc.setup(bc_dims);
+        bc.setup(walls_dims);
         bc.add_output_variable(electrons[2]);
         bc.add_output_variable(ions[2]);
-        fluid_bcs.push_back(bc);
+        fluid_wall_bcs.push_back(bc);
     }
 
     std::vector<qk::solver::bc_conducting_wall> field_bcs;
     {
         qk::solver::bc_conducting_wall bc;
-        bc.setup(bc_dims);
+        bc.setup(walls_dims);
         bc.add_output_variable(fields[0]);
         field_bcs.push_back(bc);
     }
     {
         qk::solver::bc_conducting_wall bc;
-        bc.setup(bc_dims);
+        bc.setup(walls_dims);
         bc.add_output_variable(fields[1]);
         field_bcs.push_back(bc);
     }
     {
         qk::solver::bc_conducting_wall bc;
-        bc.setup(bc_dims);
+        bc.setup(walls_dims);
         bc.add_output_variable(fields[2]);
         field_bcs.push_back(bc);
+    }
+
+    std::vector<qk::solver::bc_periodic> periodic_bcs;
+    {
+        qk::solver::bc_periodic bc;
+        bc.setup(periodic_dims);
+        bc.add_output_variable(electrons[0]);
+        bc.add_output_variable(ions[0]);
+        bc.add_output_variable(fields[0]);
+        periodic_bcs.push_back(bc);
+    }
+    {
+        qk::solver::bc_periodic bc;
+        bc.setup(periodic_dims);
+        bc.add_output_variable(electrons[1]);
+        bc.add_output_variable(ions[1]);
+        bc.add_output_variable(fields[1]);
+        periodic_bcs.push_back(bc);
+    }
+    {
+        qk::solver::bc_periodic bc;
+        bc.setup(periodic_dims);
+        bc.add_output_variable(electrons[2]);
+        bc.add_output_variable(ions[2]);
+        bc.add_output_variable(fields[2]);
+        periodic_bcs.push_back(bc);
     }
 
     qk::solver::fill reset_rhs;
@@ -359,11 +439,11 @@ two_fluid_brio_wu()
     qk::solver::swap swap;
     {
         swap.add_output_variable(electrons[0]);
-        swap.add_output_variable(electrons[3]);
+        swap.add_output_variable(electrons[electrons_ti.num_stages()]);
         swap.add_output_variable(ions[0]);
-        swap.add_output_variable(ions[3]);
+        swap.add_output_variable(ions[ions_ti.num_stages()]);
         swap.add_output_variable(fields[0]);
-        swap.add_output_variable(fields[3]);
+        swap.add_output_variable(fields[field_ti.num_stages()]);
     }
 
     std::vector<qk::variable::variable_id> write_vars;
@@ -377,9 +457,8 @@ two_fluid_brio_wu()
 
     ic.solve(variable_manager);
 
-
     {
-        std::cout << "Exporting Frame 0\n";
+        std::cout << "Exporting Frame   0\n";
         variable_manager.write_vtk(work_directory + "/frame", "_0.vtk", write_vars);
     }
 
@@ -394,9 +473,10 @@ two_fluid_brio_wu()
 
         for (int j = 0; j < num_steps_per_frame; j++) {
             // Run a dt step
-            for(int k = 0; k < 3; k++){
-                fluid_bcs[k].solve(variable_manager);
+            for(int k = 0; k < electrons_ti.num_stages(); k++){
+                fluid_wall_bcs[k].solve(variable_manager);
                 field_bcs[k].solve(variable_manager);
+                periodic_bcs[k].solve(variable_manager);
                 reset_rhs.solve(variable_manager);
                 electron_eulers[k].solve(variable_manager);
                 electron_lorentz_forces[k].solve(variable_manager);
@@ -404,6 +484,7 @@ two_fluid_brio_wu()
                 ion_lorentz_forces[k].solve(variable_manager);
                 field_maxwells[k].solve(variable_manager);
                 field_current_sources[k].solve(variable_manager);
+
                 electrons_ti.solve(variable_manager,k);
                 ions_ti.solve(variable_manager,k);
                 field_ti.solve(variable_manager,k);

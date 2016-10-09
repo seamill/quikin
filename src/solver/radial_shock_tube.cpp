@@ -36,6 +36,7 @@ void radial_shock_tube::solve(qk::variable::variable_manager & variable_manager,
     const double R2 = _radius*_radius;
     const double rho0 = 1.;
     const double e0 = 1. / (_gamma-1.);
+    double * __restrict__ q;
 
     for (int i = 0; i < _output_variable_ids.size(); i++) {
         qk::variable::variable & var = variable_manager.output_variable(_output_variable_ids[i]);
@@ -44,10 +45,11 @@ void radial_shock_tube::solve(qk::variable::variable_manager & variable_manager,
             qk::data::extended_datachunk & data = var[data_idx];
             data.fill(0.);
 
-            qk::range rho_range = data.internal_range();
+            qk::range rho_range = data.range();
             rho_range.set(data.num_dims()-1,0,1);
 
             for (qk::indexer idx = data.indexer(rho_range); idx.exists(); idx.next()) {
+                q = data.data(idx);
                 grid.xc(idx, x);
 
                 double r2 = (x[0]-_center[0])*(x[0]-_center[0]);
@@ -55,25 +57,12 @@ void radial_shock_tube::solve(qk::variable::variable_manager & variable_manager,
                 r2 += (x[2]-_center[2])*(x[1]-_center[2]);
 
                 const double rho = (r2 < R2) ? rho0 : rho0 * _rho_jump;
-                data[idx] = rho;
-            }
-
-            qk::range e_range = data.internal_range();
-            e_range.set(data.num_dims()-1,4,5);
-
-            for (qk::indexer idx = data.indexer(e_range); idx.exists(); idx.next()) {
-                grid.xc(idx, x);
-
-                double r2 = (x[0]-_center[0])*(x[0]-_center[0]);
-                r2 += (x[1]-_center[1])*(x[1]-_center[1]);
-                r2 += (x[2]-_center[2])*(x[1]-_center[2]);
-
                 const double e = (r2 < R2) ? e0 : e0 * _P_jump;
-                data[idx] = e;
+
+                q[0] = rho;
+                q[4] = e;
             }
-
         }
-
     }
 
 }

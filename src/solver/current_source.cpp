@@ -16,36 +16,27 @@ namespace solver
 
 namespace current_source_solve
 {
+
 void
-fv_solve(const double multiplier, const qk::data::extended_datachunk & fluid_data, qk::data::extended_datachunk & rhs_data)
+fv_solve_idx(const double multiplier, const qk::data::extended_datachunk & fluid_data, qk::data::extended_datachunk & rhs_data)
 {
 
-    qk::range int_rng = fluid_data.internal_range();
-    int_rng.set(int_rng.num_dims()-1,0,1);
-    qk::indexer idx = fluid_data.indexer(int_rng);
-    const int imin = idx.linear_index();
-    const int imax = idx.final_linear_index()+1;
+    qk::range mom_rng = fluid_data.internal_range();
+    mom_rng.set(mom_rng.num_dims()-1,1,4);
 
-    const double * __restrict__ fluid = fluid_data.data();
-    double * __restrict__ rhs = rhs_data.data();
+    qk::range E_rng = rhs_data.internal_range();
+    E_rng.set(E_rng.num_dims()-1,0,3);
 
-    const double * __restrict__ p;
-    double * __restrict__ src;
+    qk::indexer p_idx = fluid_data.indexer(mom_rng);
+    qk::indexer E_idx = rhs_data.indexer(E_rng);
 
-    for(int i=imin;i<imax;++i){
-        p = fluid + i*5 + 1;
-        src = rhs + i*6;
+    while(p_idx.exists() and E_idx.exists()){
+        rhs_data[E_idx] += multiplier * fluid_data[p_idx];
 
-        // We are solving
-        // rhs Ex = (-q/e/eps0) * px
-        // rhs Ey = (-q/e/eps0) * py
-        // rhs Ez = (-q/e/eps0) * pz
-
-        src[0] += multiplier * p[0];
-        src[1] += multiplier * p[1];
-        src[2] += multiplier * p[2];
-
+        ++E_idx;
+        ++p_idx;
     }
+
 }
 
 }
@@ -64,9 +55,9 @@ void current_source::solve(qk::variable::variable_manager & variable_manager, co
     qk::variable::variable & rhs = variable_manager.output_variable(_output_variable_ids[0]);
 
     for(int i = 0; i < _multipliers.size(); ++i){
-        const qk::variable::variable & fluid = variable_manager.input_variable(_input_variable_ids[0]);
+        const qk::variable::variable & fluid = variable_manager.input_variable(_input_variable_ids[i]);
         for (qk::indexer idx = fluid.indexer(); idx.exists(); ++idx) {
-            current_source_solve::fv_solve(_multipliers[i],fluid[idx],rhs[idx]);
+            current_source_solve::fv_solve_idx(_multipliers[i],fluid[idx],rhs[idx]);
         }
     }
 

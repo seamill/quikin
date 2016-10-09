@@ -1,49 +1,35 @@
 #include "bc_periodic.h"
 
-// STL include
-#include <cmath>
-#include <iomanip>
-
 // QK includes
 #include "grid/grid.h"
 #include "data/functions.h"
 #include "variable/variable.h"
+
+// STL include
+#include <cmath>
+#include <iomanip>
 
 namespace qk
 {
 namespace solver
 {
 
-bc_periodic::bc_periodic()
-{
-
-}
-
-bc_periodic::~bc_periodic()
-{
-
-}
-
-
 void
 bc_periodic::solve(qk::variable::variable_manager & variable_manager, const int tag) const
 {
 
-    const int num_dims = variable_manager.grid().range().num_dims();
-
-    for(int i = 0; i < _output_variable_ids.size(); i++){
-        qk::variable::variable & var = variable_manager.output_variable(_output_variable_ids[i]);
+    for(int vi = 0; vi < _output_variable_ids.size(); vi++){
+        qk::variable::variable & var = variable_manager.output_variable(_output_variable_ids[vi]);
 
         for(qk::indexer chunk_idx = var.indexer(); chunk_idx.exists(); chunk_idx.next()){
 
             //TODO: This will have to be modified in the future for multiple chunks
-            const qk::data::extended_datachunk & from_chunk = var[chunk_idx];
-            qk::data::extended_datachunk & to_chunk = var[chunk_idx];
+            qk::data::extended_datachunk & chunk = var[chunk_idx];
 
-            for(int i=0;i<num_dims;i++){
+            for(const int & i : _dims){
 
-                qk::data::copy_to(from_chunk, from_chunk.lower_internal_range(i), to_chunk, to_chunk.upper_external_range(i));
-                qk::data::copy_to(from_chunk, from_chunk.upper_internal_range(i), to_chunk, to_chunk.lower_external_range(i));
+                qk::data::copy_to(chunk, chunk.lower_internal_range(i), chunk, chunk.upper_external_range(i));
+                qk::data::copy_to(chunk, chunk.upper_internal_range(i), chunk, chunk.lower_external_range(i));
 
             }
         }

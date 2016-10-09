@@ -27,6 +27,9 @@ public:
 
     virtual void resize(const qk::range & mesh_range, const qk::range & data_range);
 
+    void
+    multiply_by_scalar(const qk::range & rng, const double scalar);
+
 private:
 
     qk::range _mesh_range;

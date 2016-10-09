@@ -231,6 +231,7 @@ void solve_HLL_fast(const double gamma,
 
                 F[j] = fhll_mult*F[j] + fl_mult*fl[j] + fr_mult*fr[j];
             }
+
         _QK_FV_UPWIND_RECON_SOLVE_END(5)
     }
 }
