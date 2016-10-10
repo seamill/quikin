@@ -1,13 +1,7 @@
 #include "sod_shock_tube.h"
 
 
-// STL includes
-#include <cmath>
-#include <string>
-#include <ctime>
-#include <chrono>
-#include <sstream>
-#include <iostream>
+
 
 // QK include
 #include "basis/volume_average.h"
@@ -22,6 +16,15 @@
 #include "solver/bc_no_slip.h"
 #include "solver/swap.h"
 #include "solver/fill.h"
+#include "solver/print.h"
+
+// STL includes
+#include <cmath>
+#include <string>
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <iostream>
 
 namespace qk
 {
@@ -37,6 +40,7 @@ sod_shock_tube()
     const double gamma = 1.4;
 
     // Define solver stuff
+    const int num_dims = 1;
     const int num_frames = 100;
     const int num_steps_per_frame = 5;
     const double time_end = 0.5;
@@ -56,11 +60,10 @@ sod_shock_tube()
     // Define domain
     qk::grid::rectilinear grid;
     {
-        const int num_dims = 1;
-        const int dims[] = { 500};
+        const int dims[] = { 500,2,2};
         qk::range domain_range(num_dims, dims);
-        const double startxs[] = { -0.5};
-        const double widths[] = { 1.0};
+        const double startxs[] = { -0.5,-.5,-.5};
+        const double widths[] = { 1.0,1.,1.};
 
         grid = qk::grid::rectilinear(domain_range, startxs, widths);
     }
@@ -172,6 +175,9 @@ sod_shock_tube()
                 bcs[k].solve(variable_manager);
                 reset_rhs.solve(variable_manager);
                 eulers[k].solve(variable_manager);
+//                qk::solver::print p;
+//                p.add_input_variable(rhs);
+//                p.solve(variable_manager);
                 ssprk3.solve(variable_manager,k);
             }
             swap.solve(variable_manager);

@@ -1,13 +1,14 @@
 #include "lorentz_force.h"
 
-// STL include
-#include <cmath>
-#include <iostream>
-
 // QK includes
 #include "lib/exception.h"
 #include "variable/variable_id.h"
 #include "variable/variable.h"
+
+// STL include
+#include <cmath>
+#include <iostream>
+#include <omp.h>
 
 namespace qk
 {
@@ -65,6 +66,53 @@ low_order_solve_idx(const double com, const qk::data::extended_datachunk & fluid
 
     }
 }
+
+
+void
+low_order_solve(const double com, const qk::data::extended_datachunk & fluid_data, const qk::data::extended_datachunk & field_data, qk::data::extended_datachunk & rhs_data)
+{
+
+    qk::range int_fluid_rng = fluid_data.internal_range();
+    int_fluid_rng.set(int_fluid_rng.num_dims()-1,0,1);
+
+    qk::range int_field_rng = field_data.internal_range();
+    int_field_rng.set(int_field_rng.num_dims()-1,0,1);
+
+    qk::indexer fluid_idx = fluid_data.indexer(int_fluid_rng);
+    qk::indexer field_idx = field_data.indexer(int_field_rng);
+
+    const double * __restrict__ q = fluid_data.data(fluid_idx);
+    const double * __restrict__ p = q+1;
+    const double * __restrict__ E = field_data.data(field_idx);
+    const double * __restrict__ B = E+3;
+    double * __restrict__ rhs = rhs_data.data(fluid_idx);
+
+    const int imin = fluid_idx.linear_index() / 5;
+    const int imax = (fluid_idx.final_linear_index()+1) / 5;
+
+#pragma omp parallel for
+    for(int i = imin; i<imax;++i){
+
+        // We are solving
+        // rhs px = com * ( rho * Ex + py * Bz - pz * By)
+        // rhs py = com * ( rho * Ey + pz * Bx - px * Bz)
+        // rhs pz = com * ( rho * Ez + px * By - py * Bx)
+        // rhs e = com * ( px * Ex + py * Ey + pz * Ez)
+
+        rhs[1] += com * (q[0]*E[0] + p[1]*B[2]-p[2]*B[1]);
+        rhs[2] += com * (q[0]*E[1] + p[2]*B[0]-p[0]*B[2]);
+        rhs[3] += com * (q[0]*E[2] + p[0]*B[1]-p[1]*B[0]);
+        rhs[4] += com * (p[0]*E[0]+p[1]*E[1]+p[2]*E[2]);
+
+        q += 5;
+        p += 5;
+        E += 6;
+        B += 6;
+        rhs+=5;
+
+    }
+}
+
 
 }
 

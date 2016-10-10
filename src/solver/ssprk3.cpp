@@ -62,6 +62,7 @@ void ssprk3::stage_0(const double dt,
     const double * __restrict__ r = rhs.data();
     double * __restrict__ n1 = q1.data();
     const int num_points = rhs.volume();
+#pragma omp parallel for
     for (int i = 0; i < num_points; i++) {
         n1[i] = n0[i] + dt * r[i];
     }
@@ -79,6 +80,7 @@ void ssprk3::stage_1(const double dt,
     double * __restrict__ n2 = q2.data();
     const double c = 0.25 * dt;
     const int num_points = rhs.volume();
+#pragma omp parallel for
     for (int i = 0; i < num_points; i++) {
         n2[i] = 0.75 * n0[i] + 0.25 * n1[i] + c * r[i];
     }
@@ -97,6 +99,7 @@ void ssprk3::stage_2(const double dt,
     const double * __restrict__ r = rhs.data();
     double * __restrict__ n3 = q3.data();
     const int num_points = rhs.volume();
+#pragma omp parallel for
     for (int i = 0; i < num_points; i++) {
         n3[i] = (n0[i] + 2 * (n2[i] + dt * r[i])) / 3.;
     }

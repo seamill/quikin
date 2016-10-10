@@ -1,13 +1,15 @@
 #include "current_source.h"
 
-// STL include
-#include <cmath>
-#include <iostream>
-
 // QK includes
 #include "lib/exception.h"
 #include "variable/variable_id.h"
 #include "variable/variable.h"
+
+// STL include
+#include <cmath>
+#include <iostream>
+#include <omp.h>
+
 
 namespace qk
 {
@@ -35,6 +37,37 @@ fv_solve_idx(const double multiplier, const qk::data::extended_datachunk & fluid
 
         ++E_idx;
         ++p_idx;
+    }
+
+}
+
+void
+fv_solve(const double multiplier, const qk::data::extended_datachunk & fluid_data, qk::data::extended_datachunk & rhs_data)
+{
+
+    qk::range mom_rng = fluid_data.internal_range();
+    mom_rng.set(mom_rng.num_dims()-1,0,1);
+
+    qk::range E_rng = rhs_data.internal_range();
+    E_rng.set(E_rng.num_dims()-1,0,1);
+
+    qk::indexer p_idx = fluid_data.indexer(mom_rng);
+    qk::indexer E_idx = rhs_data.indexer(E_rng);
+
+    const int imin = p_idx.linear_index()/5;
+    const int imax = (p_idx.final_linear_index()+1)/5;
+
+    const double * __restrict__ p = fluid_data.data(p_idx) + 1;
+    double * __restrict__ rhs = rhs_data.data(E_idx);
+#pragma omp parallel for
+    for(int i=imin;i<imax;++i){
+
+        rhs[0] += multiplier*p[0];
+        rhs[1] += multiplier*p[1];
+        rhs[2] += multiplier*p[2];
+
+        p+=5;
+        rhs+=6;
     }
 
 }

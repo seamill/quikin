@@ -26,7 +26,7 @@ void print::solve(qk::variable::variable_manager & variable_manager, const int t
 
             for(qk::indexer idx = var_chunk.indexer(var_chunk.internal_range()); idx.exists(); ++idx){
 
-                if(idx[0]==40){
+                {
 
                     os << "Index (";
                     for(int i = 0; i < idx.num_dims(); i++){

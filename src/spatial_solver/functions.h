@@ -1,6 +1,4 @@
 
-
-
 #define _QK_FV_UPWIND_RECON_SOLVE_START(dim, rhs_size, q_data, rhs_data)      \
     const double d = grid.dx(dim);                              \
     const int stride = q_data.stride(dim);                      \
