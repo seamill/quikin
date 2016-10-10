@@ -4,11 +4,11 @@
 #include "lib/exception.h"
 #include "variable/variable_id.h"
 #include "variable/variable.h"
+#include "lib/parallelization.h"
 
 // STL include
 #include <cmath>
 #include <iostream>
-#include <omp.h>
 
 namespace qk
 {

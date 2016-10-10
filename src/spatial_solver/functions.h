@@ -4,7 +4,7 @@
     const int stride = q_data.stride(dim);                      \
     qk::range itr_range(q_data.internal_range());               \
     itr_range.expand(dim, -1, 0);                               \
-    itr_range.expand(itr_range.num_dims()-1, 0, 1);             \
+    itr_range.set(itr_range.num_dims()-1, 0, 1);             \
     const double * __restrict__ q_REST = q_data.data();         \
     double * __restrict__ rhs_REST = rhs_data.data();           \
     double ql[rhs_size],qr[rhs_size],F[rhs_size];               \

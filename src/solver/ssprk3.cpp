@@ -1,12 +1,11 @@
 #include "ssprk3.h"
 
-// STL include
-
 // QK includes
 #include "lib/exception.h"
 #include "grid/rectilinear.h"
 #include "variable/variable_id.h"
 #include "variable/variable.h"
+#include "lib/parallelization.h"
 
 namespace qk
 {
@@ -58,11 +57,11 @@ void ssprk3::stage_0(const double dt,
     const qk::data::extended_datachunk & rhs,
     qk::data::extended_datachunk & q1) const
 {
-    const double * __restrict__ n0 = q0.data();
-    const double * __restrict__ r = rhs.data();
-    double * __restrict__ n1 = q1.data();
+    const double * __restrict__ n0 = _QK_ASSUME_ALIGNED_CONST(q0.data());
+    const double * __restrict__ r = _QK_ASSUME_ALIGNED_CONST(rhs.data());
+    double * __restrict__ n1 = _QK_ASSUME_ALIGNED(q1.data());
     const int num_points = rhs.volume();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(_QK_NUM_THREADS_)
     for (int i = 0; i < num_points; i++) {
         n1[i] = n0[i] + dt * r[i];
     }
@@ -74,13 +73,13 @@ void ssprk3::stage_1(const double dt,
     const qk::data::extended_datachunk & rhs,
     qk::data::extended_datachunk & q2) const
 {
-    const double * __restrict__ n0 = q0.data();
-    const double * __restrict__ n1 = q1.data();
-    const double * __restrict__ r = rhs.data();
-    double * __restrict__ n2 = q2.data();
+    const double * __restrict__ n0 = _QK_ASSUME_ALIGNED_CONST(q0.data());
+    const double * __restrict__ n1 = _QK_ASSUME_ALIGNED_CONST(q1.data());
+    const double * __restrict__ r = _QK_ASSUME_ALIGNED_CONST(rhs.data());
+    double * __restrict__ n2 = _QK_ASSUME_ALIGNED(q2.data());
     const double c = 0.25 * dt;
     const int num_points = rhs.volume();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(_QK_NUM_THREADS_)
     for (int i = 0; i < num_points; i++) {
         n2[i] = 0.75 * n0[i] + 0.25 * n1[i] + c * r[i];
     }
@@ -93,15 +92,15 @@ void ssprk3::stage_2(const double dt,
     const qk::data::extended_datachunk & rhs,
     qk::data::extended_datachunk & q3) const
 {
-    const double * __restrict__ n0 = q0.data();
-    const double * __restrict__ n1 = q1.data();
-    const double * __restrict__ n2 = q2.data();
-    const double * __restrict__ r = rhs.data();
-    double * __restrict__ n3 = q3.data();
+    const double * __restrict__ n0 = _QK_ASSUME_ALIGNED_CONST(q0.data());
+    const double * __restrict__ n1 = _QK_ASSUME_ALIGNED_CONST(q1.data());
+    const double * __restrict__ n2 = _QK_ASSUME_ALIGNED_CONST(q2.data());
+    const double * __restrict__ r = _QK_ASSUME_ALIGNED_CONST(rhs.data());
+    double * __restrict__ n3 = _QK_ASSUME_ALIGNED(q3.data());
     const int num_points = rhs.volume();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(_QK_NUM_THREADS_)
     for (int i = 0; i < num_points; i++) {
-        n3[i] = (n0[i] + 2 * (n2[i] + dt * r[i])) / 3.;
+        n3[i] = (n0[i] + 2.0 * (n2[i] + dt * r[i])) / 3.;
     }
 }
 

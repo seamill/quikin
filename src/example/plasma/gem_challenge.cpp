@@ -36,7 +36,7 @@ namespace plasma
 {
 
 void
-gem_challenge()
+gem_challenge(const std::string & work_directory)
 {
 
     typedef qk::solver::ssprk3 time_integrator;
@@ -52,7 +52,10 @@ gem_challenge()
     const double pi = 3.14159263;
 
 
+    const int num_frames = 1000;
+    const int num_steps_per_frame = 125;
 
+    const int Nx = 256;
     const double di = 1.;
     const double qe = -e;
     const double qi = e;
@@ -62,9 +65,9 @@ gem_challenge()
     const double n1_n0 = 0.2;
     const double Te_Ti = 0.2;
     const double vse_c = 0.1;
-    const double Lx = 4 * pi * di;
+//    const double Lx = 4 * pi * di;
 
-//    const double Lx = 2 * pi * di;
+    const double Lx = 1 * pi * di;
 //    const double mi_me = 1.;
 //    const double Te_Ti = 1.0;
 
@@ -88,7 +91,6 @@ gem_challenge()
     const double wpe = std::sqrt(n0*e*e/eps0/me);
     const double wpi = std::sqrt(n0*e*e/eps0/mi);
 
-    const int Nx = 128;
 
     std::vector<double> masses;
     masses.push_back(me);
@@ -98,13 +100,10 @@ gem_challenge()
     charges.push_back( e);
 
     // Define solver stuff
-    const int num_frames = 1000;
-    const int num_steps_per_frame = 20;
     const double time_end = 40./wci;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
     const std::vector<int> periodic_dims(1,1);
     const std::vector<int> walls_dims(1,0);
-    const std::string work_directory = "/Users/seamill/local_storage/quikin/data";
     std::vector<std::string> fluid_component_names;
     fluid_component_names.push_back("rho");
     fluid_component_names.push_back("px");

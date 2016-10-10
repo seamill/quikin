@@ -32,7 +32,7 @@ namespace maxwell
 {
 
 void
-wave_1D()
+wave_1D(const std::string & work_directory)
 {
 
     // Define solver stuff
@@ -43,7 +43,6 @@ wave_1D()
     const int num_steps_per_frame = 10;
     const double time_end = 1.0;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
-    const std::string work_directory = "/Users/seamill/local_storage/quikin/data";
     std::vector<std::string> component_names;
     component_names.push_back("Ex");
     component_names.push_back("Ey");
@@ -52,7 +51,7 @@ wave_1D()
     component_names.push_back("By");
     component_names.push_back("Bz");
 
-    const int num_dims = 1;
+    const int num_dims = 3;
     std::vector<int> periodic_dims;
     for(int i=0;i<num_dims;i++){periodic_dims.push_back(i);}
 

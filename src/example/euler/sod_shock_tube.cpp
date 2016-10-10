@@ -14,6 +14,7 @@
 #include "solver/euler.h"
 #include "solver/shock_tube.h"
 #include "solver/bc_no_slip.h"
+#include "solver/bc_periodic.h"
 #include "solver/swap.h"
 #include "solver/fill.h"
 #include "solver/print.h"
@@ -34,26 +35,28 @@ namespace euler
 {
 
 void
-sod_shock_tube()
+sod_shock_tube(const std::string & work_directory)
 {
 
     const double gamma = 1.4;
 
     // Define solver stuff
-    const int num_dims = 1;
+    const int num_dims = 2;
     const int num_frames = 100;
     const int num_steps_per_frame = 5;
     const double time_end = 0.5;
     const double time_dt = time_end / double(num_frames * num_steps_per_frame);
-    const std::string work_directory = "/Users/seamill/local_storage/quikin/data";
     std::vector<std::string> component_names;
     component_names.push_back("rho");
     component_names.push_back("px");
     component_names.push_back("py");
     component_names.push_back("pz");
     component_names.push_back("e");
-    std::vector<int> copy_out_dims(1,0);
-
+    std::vector<int> no_slip_dims(1,0);
+    std::vector<int> periodic_dims;
+    for(int i=1;i<num_dims;++i){
+      periodic_dims.push_back(i);
+    }
 
     // Find a better dt
 
@@ -114,24 +117,44 @@ sod_shock_tube()
         ic.add_output_variable(var);
     }
 
-    std::vector<qk::solver::bc_no_slip> bcs;
+    std::vector<qk::solver::bc_no_slip> no_slip_bcs;
     {
         qk::solver::bc_no_slip bc;
-        bc.setup(copy_out_dims);
+        bc.setup(no_slip_dims);
         bc.add_output_variable(var);
-        bcs.push_back(bc);
+        no_slip_bcs.push_back(bc);
     }
     {
         qk::solver::bc_no_slip bc;
-        bc.setup(copy_out_dims);
+        bc.setup(no_slip_dims);
         bc.add_output_variable(var_1);
-        bcs.push_back(bc);
+        no_slip_bcs.push_back(bc);
     }
     {
         qk::solver::bc_no_slip bc;
-        bc.setup(copy_out_dims);
+        bc.setup(no_slip_dims);
         bc.add_output_variable(var_2);
-        bcs.push_back(bc);
+        no_slip_bcs.push_back(bc);
+    }
+
+    std::vector<qk::solver::bc_periodic> periodic_bcs;
+    {
+        qk::solver::bc_periodic bc;
+        bc.setup(periodic_dims);
+        bc.add_output_variable(var);
+        periodic_bcs.push_back(bc);
+    }
+    {
+        qk::solver::bc_periodic bc;
+        bc.setup(periodic_dims);
+        bc.add_output_variable(var_1);
+        periodic_bcs.push_back(bc);
+    }
+    {
+        qk::solver::bc_periodic bc;
+        bc.setup(periodic_dims);
+        bc.add_output_variable(var_2);
+        periodic_bcs.push_back(bc);
     }
 
     qk::solver::fill reset_rhs;
@@ -172,12 +195,12 @@ sod_shock_tube()
         for (int j = 0; j < num_steps_per_frame; j++) {
             // Run a dt step
             for(int k = 0; k < 3; k++){
-                bcs[k].solve(variable_manager);
+                no_slip_bcs[k].solve(variable_manager);
+                if(num_dims > 1){
+                    periodic_bcs[k].solve(variable_manager);
+                }
                 reset_rhs.solve(variable_manager);
                 eulers[k].solve(variable_manager);
-//                qk::solver::print p;
-//                p.add_input_variable(rhs);
-//                p.solve(variable_manager);
                 ssprk3.solve(variable_manager,k);
             }
             swap.solve(variable_manager);
